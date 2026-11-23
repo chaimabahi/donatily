@@ -27,7 +27,6 @@ class AssociationSerializer(serializers.ModelSerializer):
             "logo_url",
             "status",
             "rejection_reason",
-            "credit_balance",
             "created_at",
             "updated_at",
         ]
@@ -37,7 +36,6 @@ class AssociationSerializer(serializers.ModelSerializer):
             "phone",
             "status",
             "rejection_reason",
-            "credit_balance",
             "created_at",
             "updated_at",
         ]

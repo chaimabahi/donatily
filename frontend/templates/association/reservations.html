@@ -36,7 +36,7 @@
                             <th>Commerçant</th>
                             <th>Produits réservés</th>
                             <th>Date collecte</th>
-                            <th>Crédits débités</th>
+                            <th>Contact</th>
                             <th>Statut</th>
                             <th>Actions</th>
                         </tr>
@@ -57,7 +57,10 @@
                                     {% endfor %}
                                 </td>
                                 <td><i class="bi bi-calendar-event me-1 text-muted"></i>{{ res.pickup_date }}</td>
-                                <td><span class="fw-bold text-success">{{ res.credits_spent }} pts</span></td>
+                                <td>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>{{ res.merchant_address|default:res.merchant_city }}</div>
+                                    <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ res.merchant_phone|default:"—" }}</div>
+                                </td>
                                 <td>
                                     {% if res.status == 'pending' %}
                                         <span class="badge-status badge-pending">En attente</span>
@@ -72,15 +75,81 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if res.status == 'pending' or res.status == 'accepted' %}
-                                        <form method="post" action="{% url 'association-reservation-cancel' res.id %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" data-confirm="Êtes-vous sûr de vouloir annuler cette réservation ? Vos crédits vous seront restitués.">
-                                                <i class="bi bi-x-circle me-1"></i> Annuler
+                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                        {% if res.status == 'accepted' or res.status == 'collected' %}
+                                            <button type="button" class="btn btn-primary btn-sm py-1 px-2" data-bs-toggle="modal" data-bs-target="#chatModal{{ res.id }}">
+                                                <i class="bi bi-chat-dots-fill me-1"></i> Messagerie
+                                                {% if res.messages|length > 0 %}
+                                                    <span class="badge bg-white text-primary rounded-pill ms-1">{{ res.messages|length }}</span>
+                                                {% endif %}
                                             </button>
-                                        </form>
-                                    {% else %}
-                                        <span class="text-muted small">—</span>
+                                        {% endif %}
+
+                                        {% if res.status == 'pending' or res.status == 'accepted' %}
+                                            <form method="post" action="{% url 'association-reservation-cancel' res.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" data-confirm="Êtes-vous sûr de vouloir annuler cette réservation ?">
+                                                    <i class="bi bi-x-circle me-1"></i> Annuler
+                                                </button>
+                                            </form>
+                                        {% elif res.status != 'accepted' and res.status != 'collected' %}
+                                            <span class="text-muted small">—</span>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if res.status == 'accepted' or res.status == 'collected' %}
+                                        <!-- Modal Messagerie -->
+                                        <div class="modal fade" id="chatModal{{ res.id }}" tabindex="-1" aria-labelledby="chatModalLabel{{ res.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+                                                    <div class="modal-header bg-light border-bottom">
+                                                        <div>
+                                                            <h5 class="modal-title fw-bold mb-0" id="chatModalLabel{{ res.id }}">
+                                                                <i class="bi bi-chat-left-text text-primary me-2"></i>Messagerie — Réservation #{{ res.id }}
+                                                            </h5>
+                                                            <div class="small text-muted">
+                                                                Avec <span class="fw-semibold text-dark">{{ res.merchant_name }}</span> ({{ res.merchant_city }} — Tél: {{ res.merchant_phone|default:"Non renseigné" }})
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4" style="background: #f8fafc;">
+                                                        <!-- Stream messages -->
+                                                        <div class="d-flex flex-column gap-3 mb-3 p-2" style="max-height: 380px; overflow-y: auto;">
+                                                            {% if res.messages %}
+                                                                {% for msg in res.messages %}
+                                                                    <div class="d-flex flex-column {% if msg.sender_role == 'association' %}align-items-end{% else %}align-items-start{% endif %}">
+                                                                        <div class="small text-muted mb-1 px-1">
+                                                                            <strong>{{ msg.sender_name }}</strong> ({{ msg.sender_role|capfirst }}) • <span class="text-secondary">{{ msg.created_at|slice:":16"|cut:"T" }}</span>
+                                                                        </div>
+                                                                        <div class="p-3 rounded-4 shadow-sm text-break" style="max-width: 80%; {% if msg.sender_role == 'association' %}background-color: #2D6A4F; color: #ffffff; border-bottom-right-radius: 4px;{% else %}background-color: #ffffff; color: #1e293b; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px;{% endif %}">
+                                                                            {{ msg.content|linebreaksbr }}
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <div class="text-center py-4 text-muted">
+                                                                    <i class="bi bi-chat-quote fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                                                                    <p class="mb-0">Aucun message échangé pour l'instant.</p>
+                                                                    <small>Discutez avec le commerçant pour organiser le retrait ou poser vos questions.</small>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+
+                                                        <!-- Send form -->
+                                                        <form method="post" action="{% url 'association-reservation-message' res.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                                                <input type="text" name="content" class="form-control border-0 py-2 px-3" placeholder="Écrivez votre message au commerçant..." required autocomplete="off">
+                                                                <button class="btn btn-primary px-4 fw-semibold" type="submit">
+                                                                    <i class="bi bi-send-fill me-1"></i> Envoyer
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     {% endif %}
                                 </td>
                             </tr>

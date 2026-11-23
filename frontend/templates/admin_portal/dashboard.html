@@ -10,14 +10,14 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div>
                 <h3 class="fw-bold mb-1"><i class="bi bi-shield-check text-primary me-2"></i>Administration Donatily</h3>
-                <p class="text-muted small mb-0">Supervision globale, vérification des partenaires et modération de l'écosystème.</p>
+                <p class="text-muted small mb-0">Supervision globale, suivi des partenaires et de l'écosystème solidaire.</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{% url 'admin-users' %}?status=pending" class="btn btn-warning btn-sm fw-semibold">
-                    <i class="bi bi-person-check me-1"></i> Partenaires en attente ({{ stats.pending_accounts|default:0 }})
+                <a href="{% url 'admin-users' %}" class="btn btn-primary btn-sm fw-semibold">
+                    <i class="bi bi-people-fill me-1"></i> Gérer Utilisateurs
                 </a>
-                <a href="{% url 'admin-products' %}?status=pending" class="btn btn-primary btn-sm fw-semibold">
-                    <i class="bi bi-patch-question me-1"></i> Offres à modérer ({{ stats.pending_products|default:0 }})
+                <a href="{% url 'admin-products' %}" class="btn btn-outline-primary btn-sm fw-semibold">
+                    <i class="bi bi-box-seam me-1"></i> Catalogue Produits
                 </a>
             </div>
         </div>
@@ -59,7 +59,7 @@
                         </div>
                         <div class="stat-icon amber"><i class="bi bi-box-seam-fill"></i></div>
                     </div>
-                    <div class="small text-muted mt-2">Modération requise: {{ stats.pending_products|default:0 }}</div>
+                    <div class="small text-muted mt-2">Publiés directement</div>
                 </div>
             </div>
 
@@ -78,77 +78,51 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <!-- Pending Users Review -->
+            <!-- Recent Users -->
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
                     <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
-                        <span><i class="bi bi-person-exclamation text-warning me-2"></i>Inscriptions en attente de vérification</span>
-                        <a href="{% url 'admin-users' %}?status=pending" class="small text-decoration-none">Voir tout</a>
+                        <span><i class="bi bi-people text-primary me-2"></i>Derniers Utilisateurs Inscrits</span>
+                        <a href="{% url 'admin-users' %}" class="small text-decoration-none">Voir tout</a>
                     </h5>
                     <div class="list-group list-group-flush">
-                        {% for u in pending_users %}
+                        {% for u in recent_users %}
                             <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="fw-bold small">{{ u.display_name }} ({{ u.email }})</div>
                                     <div class="text-muted small"><span class="badge bg-light text-dark border">{{ u.role|title }}</span> — Inscrit le {{ u.date_joined|slice:":10" }}</div>
                                 </div>
-                                <div class="d-flex gap-1">
-                                    <form method="post" action="{% url 'admin-user-review' u.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="approve">
-                                        <button type="submit" class="btn btn-sm btn-success px-2 py-1" title="Approuver">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                    </form>
-                                    <form method="post" action="{% url 'admin-user-review' u.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="reject">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Refuser">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                                <span class="badge bg-success-subtle text-success">
+                                    <i class="bi bi-check-circle me-1"></i>Actif
+                                </span>
                             </div>
                         {% empty %}
-                            <p class="text-muted small py-3 mb-0">Aucun compte partenaire en attente d'approbation.</p>
+                            <p class="text-muted small py-3 mb-0">Aucun compte partenaire enregistré pour l'instant.</p>
                         {% endfor %}
                     </div>
                 </div>
             </div>
 
-            <!-- Pending Products Moderation -->
+            <!-- Recent Products -->
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
                     <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
-                        <span><i class="bi bi-patch-question text-primary me-2"></i>Offres en attente de modération</span>
-                        <a href="{% url 'admin-products' %}?status=pending" class="small text-decoration-none">Voir tout</a>
+                        <span><i class="bi bi-box-seam text-success me-2"></i>Dernières Offres Publiées</span>
+                        <a href="{% url 'admin-products' %}" class="small text-decoration-none">Voir tout</a>
                     </h5>
                     <div class="list-group list-group-flush">
-                        {% for p in pending_products %}
+                        {% for p in recent_products %}
                             <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="fw-bold small">{{ p.name }}</div>
-                                    <div class="text-muted small">{{ p.merchant_name }} — {{ p.stock }} {{ p.unit }} ({{ p.kind }})</div>
+                                    <div class="text-muted small">{{ p.merchant_name }} — {{ p.stock }} {{ p.unit }}</div>
                                 </div>
-                                <div class="d-flex gap-1">
-                                    <form method="post" action="{% url 'admin-product-moderate' p.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="approve">
-                                        <button type="submit" class="btn btn-sm btn-success px-2 py-1" title="Publier">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                    </form>
-                                    <form method="post" action="{% url 'admin-product-moderate' p.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="reject">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Refuser">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                                <span class="badge bg-success-subtle text-success">
+                                    <i class="bi bi-broadcast me-1"></i>En ligne
+                                </span>
                             </div>
                         {% empty %}
-                            <p class="text-muted small py-3 mb-0">Toutes les offres soumises sont modérées.</p>
+                            <p class="text-muted small py-3 mb-0">Aucune offre publiée pour l'instant.</p>
                         {% endfor %}
                     </div>
                 </div>

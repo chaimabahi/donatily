@@ -73,3 +73,19 @@ class Collection(models.Model):
 
     def __str__(self):
         return f"Collecte #{self.pk}"
+
+
+class ReservationMessage(models.Model):
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reservation_messages"
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Message #{self.pk} par {self.sender.email} sur #{self.reservation_id}"
+

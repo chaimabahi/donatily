@@ -10,7 +10,7 @@ class SubscriptionPlan(models.Model):
     name = models.CharField(max_length=160)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.00"))])
-    credits = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))])
+    credits = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"), validators=[MinValueValidator(Decimal("0.00"))])
     duration_days = models.PositiveIntegerField(default=30)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -20,7 +20,7 @@ class SubscriptionPlan(models.Model):
         ordering = ["price", "name"]
         constraints = [
             models.CheckConstraint(condition=models.Q(price__gte=0), name="plan_price_gte_0"),
-            models.CheckConstraint(condition=models.Q(credits__gt=0), name="plan_credits_gt_0"),
+            models.CheckConstraint(condition=models.Q(credits__gte=0), name="plan_credits_gte_0"),
             models.CheckConstraint(condition=models.Q(duration_days__gt=0), name="plan_duration_gt_0"),
         ]
 

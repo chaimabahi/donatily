@@ -2,7 +2,27 @@ from rest_framework import serializers
 
 from apps.accounts.services import absolute_media
 
-from .models import Collection, Reservation, ReservationItem
+from .models import Collection, Reservation, ReservationItem, ReservationMessage
+
+
+class ReservationMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.CharField(source="sender.display_name", read_only=True)
+    sender_role = serializers.CharField(source="sender.role", read_only=True)
+    sender_email = serializers.CharField(source="sender.email", read_only=True)
+
+    class Meta:
+        model = ReservationMessage
+        fields = [
+            "id",
+            "reservation",
+            "sender",
+            "sender_name",
+            "sender_role",
+            "sender_email",
+            "content",
+            "created_at",
+        ]
+        read_only_fields = ["id", "reservation", "sender", "created_at"]
 
 
 class ReservationItemSerializer(serializers.ModelSerializer):
@@ -15,7 +35,6 @@ class ReservationItemSerializer(serializers.ModelSerializer):
             "product",
             "product_name",
             "quantity",
-            "unit_credit_cost",
             "product_image",
         ]
 
@@ -60,6 +79,7 @@ class CollectionSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):
     items = ReservationItemSerializer(many=True, read_only=True)
     collection = CollectionSerializer(read_only=True)
+    messages = ReservationMessageSerializer(many=True, read_only=True)
     association_name = serializers.CharField(source="association.name", read_only=True)
     association_city = serializers.CharField(source="association.city", read_only=True)
     association_phone = serializers.CharField(source="association.user.phone", read_only=True)
@@ -85,9 +105,9 @@ class ReservationSerializer(serializers.ModelSerializer):
             "pickup_date",
             "notes",
             "rejection_reason",
-            "credits_spent",
             "items",
             "collection",
+            "messages",
             "created_at",
             "updated_at",
         ]
@@ -97,9 +117,9 @@ class ReservationSerializer(serializers.ModelSerializer):
             "merchant",
             "status",
             "rejection_reason",
-            "credits_spent",
             "items",
             "collection",
+            "messages",
             "created_at",
             "updated_at",
         ]

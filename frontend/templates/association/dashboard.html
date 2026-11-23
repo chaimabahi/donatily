@@ -29,12 +29,12 @@
                 <div class="card card-stat p-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="text-muted small fw-semibold">Solde Crédits</div>
-                            <h3 class="fw-bold text-success mb-0">{{ stats.credit_balance|default:"0.00" }}</h3>
+                            <div class="text-muted small fw-semibold">Collectes Réalisées</div>
+                            <h3 class="fw-bold text-success mb-0">{{ stats.completed_collections|default:"0" }}</h3>
                         </div>
-                        <div class="stat-icon green"><i class="bi bi-coin"></i></div>
+                        <div class="stat-icon green"><i class="bi bi-check2-circle"></i></div>
                     </div>
-                    <div class="small text-muted mt-2"><i class="bi bi-info-circle me-1"></i>Utilisable pour invendus & promos</div>
+                    <div class="small text-muted mt-2"><i class="bi bi-box-seam me-1"></i>Lots récupérés auprès des commerçants</div>
                 </div>
             </div>
 
@@ -95,13 +95,13 @@
                             </div>
                             <div class="small text-muted mb-1"><i class="bi bi-shop me-1"></i>Commerçant partenaire : <strong>{{ stats.subscription.merchant }}</strong></div>
                             <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>Date d'échéance : <strong>{{ stats.subscription.end_date }}</strong></div>
-                            <div class="small text-success fw-semibold"><i class="bi bi-stars me-1"></i>Allocation : {{ stats.subscription.credits }} crédits / mois</div>
+                            <div class="small text-success fw-semibold"><i class="bi bi-shield-check me-1"></i>Partenariat solidaire actif</div>
                         </div>
                     {% else %}
                         <div class="p-4 bg-light rounded-3 text-center mb-3">
                             <i class="bi bi-award fs-1 text-muted mb-2 d-block"></i>
                             <h6 class="fw-bold">Aucun abonnement en cours</h6>
-                            <p class="small text-muted">Souscrivez à un plan chez un commerçant pour obtenir des crédits mensuels réguliers.</p>
+                            <p class="small text-muted">Souscrivez à un partenariat avec un commerçant pour collaborer sur la redistribution.</p>
                             <a href="{% url 'association-plans' %}" class="btn btn-outline-primary btn-sm">Découvrir les formules</a>
                         </div>
                     {% endif %}
@@ -151,7 +151,7 @@
                             <th>Réf</th>
                             <th>Commerçant</th>
                             <th>Date collecte</th>
-                            <th>Crédits</th>
+                            <th>Articles</th>
                             <th>Statut</th>
                             <th>Date demande</th>
                         </tr>
@@ -162,7 +162,7 @@
                                 <td class="fw-bold">#{{ res.id }}</td>
                                 <td>{{ res.merchant_name }}</td>
                                 <td>{{ res.pickup_date }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ res.credits_spent }} pts</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ res.items|length }} article(s)</span></td>
                                 <td>
                                     {% if res.status == 'pending' %}
                                         <span class="badge-status badge-pending">En attente</span>

@@ -87,14 +87,6 @@ def accept_subscription(*, subscription_id, actor):
     subscription.end_date = today + timedelta(days=subscription.plan.duration_days)
     subscription.rejection_reason = ""
     subscription.save()
-    apply_credit(
-        association=subscription.association,
-        amount=subscription.plan.credits,
-        tx_type=CreditTransaction.Type.GRANT,
-        description=f"Crédits de la formule {subscription.plan.name}",
-        subscription=subscription,
-        created_by=actor,
-    )
     notify(
         subscription.association.user,
         "Abonnement activé",

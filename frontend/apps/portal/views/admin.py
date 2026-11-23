@@ -4,23 +4,23 @@ from apps.portal.api_client import APIClient, format_api_errors
 
 
 def dashboard_view(request):
-    """Admin Dashboard: Global metrics, pending items, activity feed."""
+    """Admin Dashboard: Global metrics, recent items, activity feed."""
     client = APIClient(request)
 
     _, stats = client.get("/api/stats/admin/")
     if not isinstance(stats, dict):
         stats = {}
 
-    _, pending_users_data = client.get("/api/auth/users/", params={"status": "pending", "page_size": 5})
-    pending_users = pending_users_data.get("results", []) if isinstance(pending_users_data, dict) else []
+    _, recent_users_data = client.get("/api/auth/users/", params={"page_size": 5})
+    recent_users = recent_users_data.get("results", []) if isinstance(recent_users_data, dict) else []
 
-    _, pending_products_data = client.get("/api/products/", params={"status": "pending", "page_size": 5})
-    pending_products = pending_products_data.get("results", []) if isinstance(pending_products_data, dict) else []
+    _, recent_products_data = client.get("/api/products/", params={"page_size": 5})
+    recent_products = recent_products_data.get("results", []) if isinstance(recent_products_data, dict) else []
 
     context = {
         "stats": stats,
-        "pending_users": pending_users,
-        "pending_products": pending_products,
+        "recent_users": recent_users,
+        "recent_products": recent_products,
     }
     return render(request, "admin_portal/dashboard.html", context)
 
@@ -185,7 +185,7 @@ def distributions_view(request):
 
 
 def subscriptions_view(request):
-    """Monitor subscriptions, plans and credit operations."""
+    """Monitor subscriptions and solidarity plans."""
     client = APIClient(request)
 
     _, sub_data = client.get("/api/subscriptions/")
@@ -194,17 +194,9 @@ def subscriptions_view(request):
     _, plan_data = client.get("/api/plans/")
     plans = plan_data.get("results", []) if isinstance(plan_data, dict) else []
 
-    _, tx_data = client.get("/api/credits/")
-    transactions = tx_data.get("results", []) if isinstance(tx_data, dict) else []
-
-    _, assoc_data = client.get("/api/associations/")
-    associations = assoc_data.get("results", []) if isinstance(assoc_data, dict) else []
-
     context = {
         "subscriptions": subscriptions,
         "plans": plans,
-        "transactions": transactions,
-        "associations": associations,
     }
     return render(request, "admin_portal/subscriptions.html", context)
 

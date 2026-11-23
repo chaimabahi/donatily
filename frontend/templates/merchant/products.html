@@ -57,7 +57,7 @@
                             <th>Catégorie</th>
                             <th>Type</th>
                             <th>Stock</th>
-                            <th>Prix / Coût crédits</th>
+                            <th>Modalité</th>
                             <th>Statut</th>
                             <th>Actions</th>
                         </tr>
@@ -78,7 +78,7 @@
                                     <div class="fw-bold text-dark">{{ prod.name }}</div>
                                     <div class="small text-muted text-truncate" style="max-width: 250px;">{{ prod.description }}</div>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">{{ prod.category_name }}</span></td>
+                                <td>{% if prod.category_name %}<span class="badge bg-light text-dark border">{{ prod.category_name }}</span>{% else %}<span class="text-muted small">—</span>{% endif %}</td>
                                 <td>
                                     {% if prod.kind == 'donation' %}
                                         <span class="badge-status badge-donation">Don</span>
@@ -90,9 +90,12 @@
                                 </td>
                                 <td><span class="fw-bold text-dark">{{ prod.stock }} {{ prod.unit }}</span></td>
                                 <td>
-                                    <div class="small fw-semibold">{{ prod.credit_cost }} crédits</div>
-                                    {% if prod.offer_price > 0 %}
-                                        <div class="small text-muted">{{ prod.offer_price }} TND</div>
+                                    {% if prod.kind == 'donation' %}
+                                        <span class="badge bg-success-subtle text-success">Don Gratuit</span>
+                                    {% elif prod.offer_price > 0 %}
+                                        <div class="small fw-semibold">{{ prod.offer_price }} TND</div>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark border">Solidaire</span>
                                     {% endif %}
                                 </td>
                                 <td>

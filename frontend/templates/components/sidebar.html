@@ -31,9 +31,6 @@
             <a class="nav-link {% if request.resolver_match.url_name == 'association-subscriptions' %}active{% endif %}" href="{% url 'association-subscriptions' %}">
                 <i class="bi bi-award"></i> Mes abonnements
             </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'association-credits' %}active{% endif %}" href="{% url 'association-credits' %}">
-                <i class="bi bi-coin"></i> Solde de crédits
-            </a>
             <a class="nav-link {% if 'beneficiaries' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'association-beneficiaries' %}">
                 <i class="bi bi-people"></i> Bénéficiaires & besoins
             </a>
@@ -72,10 +69,10 @@
                 <i class="bi bi-speedometer2"></i> Vue globale plateforme
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'admin-users' %}active{% endif %}" href="{% url 'admin-users' %}">
-                <i class="bi bi-people-fill"></i> Utilisateurs & Validation
+                <i class="bi bi-people-fill"></i> Gestion des Utilisateurs
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'admin-products' %}active{% endif %}" href="{% url 'admin-products' %}">
-                <i class="bi bi-patch-check"></i> Modération des offres
+                <i class="bi bi-box-seam"></i> Catalogue des offres
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'admin-categories' %}active{% endif %}" href="{% url 'admin-categories' %}">
                 <i class="bi bi-tags"></i> Gestion catégories
@@ -87,7 +84,7 @@
                 <i class="bi bi-heart-pulse"></i> Distributions & Impact
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'admin-subscriptions' %}active{% endif %}" href="{% url 'admin-subscriptions' %}">
-                <i class="bi bi-credit-card-2-front"></i> Abonnements & Crédits
+                <i class="bi bi-award"></i> Abonnements Solidaires
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'admin-activity' %}active{% endif %}" href="{% url 'admin-activity' %}">
                 <i class="bi bi-journal-text"></i> Journal d'activité

@@ -44,7 +44,7 @@ class Product(models.Model):
         PACK = "pack", "paquet"
 
     merchant = models.ForeignKey("merchants.Merchant", on_delete=models.CASCADE, related_name="products")
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
     name = models.CharField(max_length=180)
     description = models.TextField()
     kind = models.CharField(max_length=20, choices=Kind.choices)

@@ -12,6 +12,7 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     merchant_name = serializers.CharField(source="merchant.business_name", read_only=True)
     merchant_city = serializers.CharField(source="merchant.city", read_only=True)
     active_subscriptions_count = serializers.SerializerMethodField()
+    credits = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=Decimal("0.00"))
 
     class Meta:
         model = SubscriptionPlan
@@ -41,8 +42,8 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         return value
 
     def validate_credits(self, value):
-        if value <= Decimal("0.00"):
-            raise serializers.ValidationError("Le nombre de crédits doit être strictement supérieur à zéro.")
+        if value < Decimal("0.00"):
+            raise serializers.ValidationError("Le nombre de crédits ne peut pas être négatif.")
         return value
 
 

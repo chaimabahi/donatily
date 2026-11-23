@@ -53,7 +53,6 @@ class UserSerializer(serializers.ModelSerializer):
                 "name": association.name,
                 "status": association.status,
                 "city": association.city,
-                "credit_balance": association.credit_balance,
                 "registration_number": association.registration_number,
                 "logo": absolute_media(request, association.logo),
             }
@@ -123,8 +122,8 @@ class AssociationRegisterSerializer(serializers.Serializer):
             if key in validated_data
         }
         with transaction.atomic():
-            user = User.objects.create_user(password=password, role=User.Role.ASSOCIATION, **validated_data)
-            Association.objects.create(user=user, **profile_fields)
+            user = User.objects.create_user(password=password, role=User.Role.ASSOCIATION, is_verified=True, **validated_data)
+            Association.objects.create(user=user, status=Association.Status.APPROVED, **profile_fields)
         return user
 
 
@@ -162,8 +161,8 @@ class MerchantRegisterSerializer(serializers.Serializer):
         profile_keys = ["business_name", "description", "tax_id", "address", "city", "postal_code", "website", "opening_hours"]
         profile_fields = {key: validated_data.pop(key) for key in profile_keys if key in validated_data}
         with transaction.atomic():
-            user = User.objects.create_user(password=password, role=User.Role.MERCHANT, **validated_data)
-            Merchant.objects.create(user=user, **profile_fields)
+            user = User.objects.create_user(password=password, role=User.Role.MERCHANT, is_verified=True, **validated_data)
+            Merchant.objects.create(user=user, status=Merchant.Status.APPROVED, **profile_fields)
         return user
 
 

@@ -85,6 +85,66 @@
                                                 </form>
                                             </div>
                                         </div>
+                                    {% elif res.status == 'accepted' or res.status == 'collected' %}
+                                        <button type="button" class="btn btn-primary btn-sm py-1 px-2 w-100" data-bs-toggle="modal" data-bs-target="#chatModal{{ res.id }}">
+                                            <i class="bi bi-chat-dots-fill me-1"></i> Messagerie
+                                            {% if res.messages|length > 0 %}
+                                                <span class="badge bg-white text-primary rounded-pill ms-1">{{ res.messages|length }}</span>
+                                            {% endif %}
+                                        </button>
+
+                                        <!-- Modal Messagerie pour le commerçant -->
+                                        <div class="modal fade" id="chatModal{{ res.id }}" tabindex="-1" aria-labelledby="chatModalLabel{{ res.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+                                                    <div class="modal-header bg-light border-bottom">
+                                                        <div>
+                                                            <h5 class="modal-title fw-bold mb-0" id="chatModalLabel{{ res.id }}">
+                                                                <i class="bi bi-chat-left-text text-primary me-2"></i>Messagerie — Réservation #{{ res.id }}
+                                                            </h5>
+                                                            <div class="small text-muted">
+                                                                Avec l'association <span class="fw-semibold text-dark">{{ res.association_name }}</span> ({{ res.association_city }} — Tél: {{ res.association_phone|default:"Non renseigné" }})
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4" style="background: #f8fafc;">
+                                                        <!-- Stream messages -->
+                                                        <div class="d-flex flex-column gap-3 mb-3 p-2" style="max-height: 380px; overflow-y: auto;">
+                                                            {% if res.messages %}
+                                                                {% for msg in res.messages %}
+                                                                    <div class="d-flex flex-column {% if msg.sender_role == 'merchant' %}align-items-end{% else %}align-items-start{% endif %}">
+                                                                        <div class="small text-muted mb-1 px-1">
+                                                                            <strong>{{ msg.sender_name }}</strong> ({{ msg.sender_role|capfirst }}) • <span class="text-secondary">{{ msg.created_at|slice:":16"|cut:"T" }}</span>
+                                                                        </div>
+                                                                        <div class="p-3 rounded-4 shadow-sm text-break" style="max-width: 80%; {% if msg.sender_role == 'merchant' %}background-color: #2D6A4F; color: #ffffff; border-bottom-right-radius: 4px;{% else %}background-color: #ffffff; color: #1e293b; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px;{% endif %}">
+                                                                            {{ msg.content|linebreaksbr }}
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <div class="text-center py-4 text-muted">
+                                                                    <i class="bi bi-chat-quote fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                                                                    <p class="mb-0">Aucun message échangé pour l'instant.</p>
+                                                                    <small>Communiquez directement avec l'association pour préciser les modalités de retrait.</small>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+
+                                                        <!-- Send form -->
+                                                        <form method="post" action="{% url 'merchant-reservation-message' res.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                                                <input type="text" name="content" class="form-control border-0 py-2 px-3" placeholder="Écrivez votre message à l'association..." required autocomplete="off">
+                                                                <button class="btn btn-primary px-4 fw-semibold" type="submit">
+                                                                    <i class="bi bi-send-fill me-1"></i> Envoyer
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     {% else %}
                                         <span class="text-muted small">—</span>
                                     {% endif %}

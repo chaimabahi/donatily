@@ -9,8 +9,8 @@
     <div class="dashboard-body">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div>
-                <h3 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Gestion & Validation des Utilisateurs</h3>
-                <p class="text-muted small mb-0">Contrôlez les justificatifs des associations et matricules fiscaux des commerçants.</p>
+                <h3 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Gestion des Utilisateurs</h3>
+                <p class="text-muted small mb-0">Consultez les associations partenaires, commerçants et administrateurs enregistrés sur Donatily.</p>
             </div>
         </div>
 
@@ -55,7 +55,7 @@
                             <th>Rôle</th>
                             <th>Statut profil</th>
                             <th>Date inscription</th>
-                            <th>Actions de validation</th>
+                            <th>État du compte</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,10 +64,12 @@
                                 <td class="fw-bold">#{{ u.id }}</td>
                                 <td>
                                     <div class="fw-bold text-dark">{{ u.display_name }}</div>
-                                    {% if u.association_profile %}
-                                        <div class="small text-muted">{{ u.association_profile.registration_number }} — {{ u.association_profile.city }}</div>
-                                    {% elif u.merchant_profile %}
-                                        <div class="small text-muted">{{ u.merchant_profile.tax_id }} — {{ u.merchant_profile.city }}</div>
+                                    {% if u.profile %}
+                                        {% if u.role == 'association' %}
+                                            <div class="small text-muted">{{ u.profile.registration_number }} — {{ u.profile.city }}</div>
+                                        {% elif u.role == 'merchant' %}
+                                            <div class="small text-muted">{{ u.profile.tax_id }} — {{ u.profile.city }}</div>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                                 <td>
@@ -84,44 +86,27 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% with prof_status=u.profile.status|default:u.association_profile.status|default:u.merchant_profile.status %}
-                                        {% if prof_status == 'approved' %}
+                                    {% if u.role == 'admin' %}
+                                        <span class="badge bg-light text-dark">Actif</span>
+                                    {% elif u.profile %}
+                                        {% if u.profile.status == 'approved' %}
                                             <span class="badge-status badge-approved">Approuvé</span>
-                                        {% elif prof_status == 'pending' %}
+                                        {% elif u.profile.status == 'pending' %}
                                             <span class="badge-status badge-pending">En attente</span>
-                                        {% elif prof_status == 'rejected' %}
+                                        {% elif u.profile.status == 'rejected' %}
                                             <span class="badge-status badge-rejected">Refusé</span>
                                         {% else %}
-                                            <span class="badge bg-light text-dark">Actif</span>
+                                            <span class="badge bg-light text-dark">{{ u.profile.status|default:'Actif' }}</span>
                                         {% endif %}
-                                    {% endwith %}
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">Actif</span>
+                                    {% endif %}
                                 </td>
                                 <td class="small text-muted">{{ u.date_joined|slice:":10" }}</td>
                                 <td>
-                                    {% if u.role != 'admin' %}
-                                        <div class="d-flex gap-1">
-                                            <form method="post" action="{% url 'admin-user-review' u.id %}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="approve">
-                                                <button type="submit" class="btn btn-sm btn-success px-2 py-1" title="Approuver le compte">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </button>
-                                            </form>
-                                            <button type="button" class="btn btn-sm btn-outline-danger px-2 py-1" data-bs-toggle="collapse" data-bs-target="#rejUser{{ u.id }}" title="Refuser le compte">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
-                                        </div>
-                                        <div class="collapse mt-2" id="rejUser{{ u.id }}">
-                                            <form method="post" action="{% url 'admin-user-review' u.id %}" class="p-2 border rounded-2 bg-light">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="reject">
-                                                <input type="text" name="reason" class="form-control form-control-sm mb-1" placeholder="Motif du refus..." required>
-                                                <button type="submit" class="btn btn-danger btn-sm w-100">Confirmer refus</button>
-                                            </form>
-                                        </div>
-                                    {% else %}
-                                        <span class="small text-muted">Super-admin</span>
-                                    {% endif %}
+                                    <span class="badge bg-success-subtle text-success py-1 px-2">
+                                        <i class="bi bi-check-circle me-1"></i>Vérifié & Actif
+                                    </span>
                                 </td>
                             </tr>
                         {% empty %}

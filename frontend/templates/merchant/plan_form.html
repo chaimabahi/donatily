@@ -28,11 +28,7 @@
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">Prix de soutien mensuel (TND) *</label>
                         <input type="number" step="0.01" name="price" class="form-control" value="{{ plan.price|default:'50.00' }}" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">Nombre de crédits alloués *</label>
-                        <input type="number" step="0.01" name="credits" class="form-control" value="{{ plan.credits|default:'60.00' }}" required>
+                        <input type="hidden" name="credits" value="0.00">
                     </div>
 
                     <div class="col-md-6">

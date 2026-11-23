@@ -65,7 +65,9 @@ class AssociationStatsView(APIView):
         )
         month_start = timezone.localdate().replace(day=1)
         payload = {
-            "credit_balance": association.credit_balance,
+            "completed_collections": Collection.objects.filter(
+                reservation__association=association, status=Collection.Status.COMPLETED
+            ).count(),
             "beneficiaries": association.beneficiaries.count(),
             "active_beneficiaries": association.beneficiaries.filter(is_active=True).count(),
             "pending_reservations": association.reservations.filter(status=Reservation.Status.PENDING).count(),
@@ -83,7 +85,6 @@ class AssociationStatsView(APIView):
                 "plan": subscription.plan.name,
                 "merchant": subscription.plan.merchant.business_name,
                 "end_date": subscription.end_date,
-                "credits": subscription.plan.credits,
             },
         }
         return Response(payload)

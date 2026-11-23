@@ -8,12 +8,13 @@ from rest_framework.views import APIView
 from apps.accounts.pagination import DefaultPagination
 from apps.accounts.permissions import IsAdmin, IsAssociation, IsMerchant
 
-from .models import Collection, Reservation
+from .models import Collection, Reservation, ReservationMessage
 from .serializers import (
     CollectionActionSerializer,
     CollectionSerializer,
     ReservationActionSerializer,
     ReservationCreateSerializer,
+    ReservationMessageSerializer,
     ReservationSerializer,
 )
 from .services import (
@@ -22,6 +23,7 @@ from .services import (
     complete_collection,
     create_reservation,
     miss_collection,
+    post_reservation_message,
     reject_reservation,
 )
 
@@ -119,6 +121,33 @@ class ReservationActionView(APIView):
             raise ValidationError({"action": "Action inconnue."})
 
         return Response(ReservationSerializer(res, context={"request": request}).data)
+
+
+class ReservationMessagesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        reservation = get_object_or_404(
+            Reservation.objects.select_related("association__user", "merchant__user"),
+            pk=pk,
+        )
+        user = request.user
+        is_assoc = user.role == "association" and hasattr(user, "association_profile") and reservation.association_id == user.association_profile.id
+        is_merch = user.role == "merchant" and hasattr(user, "merchant_profile") and reservation.merchant_id == user.merchant_profile.id
+        if user.role != "admin" and not is_assoc and not is_merch:
+            raise PermissionDenied("Vous n'avez pas accès à cette réservation.")
+
+        messages = reservation.messages.select_related("sender").order_by("created_at")
+        return Response(ReservationMessageSerializer(messages, many=True).data)
+
+    def post(self, request, pk):
+        content = request.data.get("content", "")
+        msg = post_reservation_message(
+            reservation_id=pk,
+            actor=request.user,
+            content=content,
+        )
+        return Response(ReservationMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
 
 
 class CollectionListView(APIView):

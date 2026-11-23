@@ -12,7 +12,7 @@
                 <i class="bi bi-arrow-left me-1"></i> Retour au catalogue
             </a>
             <h3 class="fw-bold mb-1">{{ product.name }}</h3>
-            <span class="badge bg-light text-dark border">{{ product.category_name }}</span>
+            {% if product.category_name %}<span class="badge bg-light text-dark border">{{ product.category_name }}</span>{% endif %}
         </div>
 
         <div class="row g-4">
@@ -39,8 +39,8 @@
                             <span class="fw-bold text-success">{{ product.stock }} {{ product.unit }}</span>
                         </div>
                         <div class="col-sm-4">
-                            <span class="text-muted small d-block">Coût par unité :</span>
-                            <span class="fw-bold text-primary">{{ product.credit_cost }} crédits</span>
+                            <span class="text-muted small d-block">Accès :</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-heart-fill me-1"></i>Don Solidaire</span>
                         </div>
                     </div>
 
@@ -82,12 +82,12 @@
                         </div>
 
                         <div class="p-3 bg-light rounded-3 mb-4">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="small text-muted">Total crédits requis :</span>
-                                <span class="fw-bold text-success" id="totalCreditsDisplay">{{ product.credit_cost }} pts</span>
+                            <div class="d-flex justify-content-between mb-1 align-items-center">
+                                <span class="small fw-semibold text-dark"><i class="bi bi-shield-check text-success me-1"></i>Réservation solidaire directe :</span>
+                                <span class="badge bg-success">Gratuit (Sans Crédits)</span>
                             </div>
-                            <div class="small text-muted" style="font-size: 0.8rem;">
-                                Les crédits sont débités à la réservation et intégralement remboursés si le commerçant refuse la demande.
+                            <div class="small text-muted" style="font-size: 0.82rem;">
+                                Dès votre réservation confirmée, le commerçant recevra une notification instantanée. Après validation, la messagerie sera ouverte pour organiser la collecte.
                             </div>
                         </div>
 
@@ -111,19 +111,6 @@ document.addEventListener("DOMContentLoaded", function() {
     if (dateInput) {
         dateInput.min = today;
         dateInput.value = today;
-    }
-
-    // Dynamic credit calculation
-    const qtyInput = document.getElementById("qtyInput");
-    const totalDisplay = document.getElementById("totalCreditsDisplay");
-    const unitCost = parseFloat("{{ product.credit_cost|default:'0' }}");
-
-    if (qtyInput && totalDisplay) {
-        qtyInput.addEventListener("input", function() {
-            const qty = parseInt(this.value) || 0;
-            const total = (qty * unitCost).toFixed(2);
-            totalDisplay.textContent = total + " pts";
-        });
     }
 });
 </script>

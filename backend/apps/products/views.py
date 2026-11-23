@@ -140,20 +140,18 @@ class ProductListCreateView(APIView):
 
     def post(self, request):
         merchant = request.user.merchant_profile
-        if merchant.status != "approved" or not request.user.is_verified:
-            raise PermissionDenied("Votre compte commerçant doit être validé pour publier des produits.")
 
         serializer = ProductSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        # Newly created products start in pending moderation (or approved if auto-approved)
-        product = serializer.save(merchant=merchant, status=Product.Status.PENDING)
+        # Products are published directly without waiting for admin moderation
+        product = serializer.save(merchant=merchant, status=Product.Status.APPROVED)
 
         log_activity(
             request.user,
             "product.create",
             "product",
             product.pk,
-            f"Offre {product.name} ({product.get_kind_display()}) soumise pour modération.",
+            f"Offre {product.name} ({product.get_kind_display()}) publiée.",
         )
         return Response(
             ProductSerializer(product, context={"request": request}).data,
@@ -193,11 +191,6 @@ class ProductDetailView(APIView):
         serializer = ProductSerializer(product, data=request.data, partial=True, context={"request": request})
         serializer.is_valid(raise_exception=True)
         updated_product = serializer.save()
-
-        # If modified by merchant, set back to pending moderation
-        if user.role == "merchant":
-            updated_product.status = Product.Status.PENDING
-            updated_product.save(update_fields=["status"])
 
         log_activity(user, "product.update", "product", product.pk, f"Produit {product.name} mis à jour.")
         return Response(ProductSerializer(updated_product, context={"request": request}).data)

@@ -20,18 +20,9 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row g-3">
-                    <div class="col-md-8">
+                    <div class="col-12">
                         <label class="form-label small fw-semibold">Intitulé du produit ou du don *</label>
                         <input type="text" name="name" class="form-control" placeholder="ex: Lot de 15 baguettes tradition du jour" value="{{ product.name }}" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Catégorie *</label>
-                        <select name="category" class="form-select" required>
-                            <option value="">Sélectionnez une catégorie</option>
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}" {% if product.category == cat.id or product.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
                     </div>
 
                     <div class="col-md-4">
@@ -58,18 +49,14 @@
                         <input type="number" name="stock" class="form-control" min="0" value="{{ product.stock|default:1 }}" required>
                     </div>
 
-                    <!-- Pricing section (conditionally hidden or updated) -->
-                    <div class="col-md-4">
+                    <!-- Pricing section -->
+                    <div class="col-md-6">
                         <label class="form-label small fw-semibold">Prix d'origine (TND)</label>
                         <input type="number" step="0.01" name="original_price" class="form-control" value="{{ product.original_price|default:'0.00' }}" id="origPriceInput">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Prix solidaire (TND)</label>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Prix solidaire (TND) (0 pour don gratuit)</label>
                         <input type="number" step="0.01" name="offer_price" class="form-control" value="{{ product.offer_price|default:'0.00' }}" id="offerPriceInput">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Coût en crédits pour l'association</label>
-                        <input type="number" step="0.01" name="credit_cost" class="form-control" value="{{ product.credit_cost|default:'0.00' }}" id="creditCostInput">
                     </div>
 
                     <div class="col-md-6">
@@ -105,7 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const kindSelect = document.getElementById("kindSelect");
     const origInput = document.getElementById("origPriceInput");
     const offerInput = document.getElementById("offerPriceInput");
-    const creditInput = document.getElementById("creditCostInput");
 
     function updatePriceFields() {
         if (!kindSelect) return;
@@ -115,12 +101,9 @@ document.addEventListener("DOMContentLoaded", function () {
             origInput.disabled = true;
             offerInput.value = "0.00";
             offerInput.disabled = true;
-            creditInput.value = "0.00";
-            creditInput.disabled = true;
         } else {
             origInput.disabled = false;
             offerInput.disabled = false;
-            creditInput.disabled = false;
         }
     }
 

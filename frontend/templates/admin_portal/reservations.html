@@ -25,7 +25,7 @@
                             <th>Association</th>
                             <th>Commerçant</th>
                             <th>Date collecte</th>
-                            <th>Crédits</th>
+                            <th>Articles</th>
                             <th>Statut</th>
                             <th>Créée le</th>
                         </tr>
@@ -37,7 +37,7 @@
                                 <td>{{ res.association_name }}</td>
                                 <td>{{ res.merchant_name }} ({{ res.merchant_city }})</td>
                                 <td>{{ res.pickup_date }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ res.credits_spent }} pts</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ res.items|length }} article(s)</span></td>
                                 <td>
                                     {% if res.status == 'pending' %}
                                         <span class="badge-status badge-pending">En attente</span>

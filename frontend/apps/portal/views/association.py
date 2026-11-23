@@ -118,7 +118,29 @@ def reservation_cancel_view(request, pk):
         json={"action": "cancel", "reason": reason},
     )
     if code == 200:
-        messages.success(request, "Réservation annulée. Vos crédits ont été restitués si applicable.")
+        messages.success(request, "Réservation annulée.")
+    else:
+        messages.error(request, format_api_errors(resp))
+    return redirect("association-reservations")
+
+
+def reservation_message_send_view(request, pk):
+    """Send a message to the merchant for an accepted reservation."""
+    if request.method != "POST":
+        return redirect("association-reservations")
+
+    client = APIClient(request)
+    content = request.POST.get("content", "").strip()
+    if not content:
+        messages.error(request, "Le message ne peut pas être vide.")
+        return redirect("association-reservations")
+
+    code, resp = client.post(
+        f"/api/reservations/{pk}/messages/",
+        json={"content": content},
+    )
+    if code == 201:
+        messages.success(request, "Votre message a été envoyé au commerçant.")
     else:
         messages.error(request, format_api_errors(resp))
     return redirect("association-reservations")
@@ -197,18 +219,8 @@ def subscription_cancel_view(request, pk):
 
 
 def credits_view(request):
-    """Credit balance and transaction ledger."""
-    client = APIClient(request)
-
-    _, data = client.get("/api/credits/")
-    transactions = data.get("results", []) if isinstance(data, dict) else []
-    balance = data.get("credit_balance", "0.00") if isinstance(data, dict) else "0.00"
-
-    context = {
-        "transactions": transactions,
-        "credit_balance": balance,
-    }
-    return render(request, "association/credits.html", context)
+    """Credits are no longer used; redirect to association dashboard."""
+    return redirect("association-dashboard")
 
 
 def beneficiaries_view(request):

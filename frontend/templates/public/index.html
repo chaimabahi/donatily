@@ -97,7 +97,7 @@
                     </div>
                     <h5 class="fw-bold">2. L'association réserve</h5>
                     <p class="text-muted small">
-                        Les associations vérifiées réservent les lots avec leurs crédits solidaires ou gratuitement pour les dons directs.
+                        Les associations réservent directement les lots et dons solidaires sans frais ni crédits requis.
                     </p>
                 </div>
             </div>
@@ -142,7 +142,7 @@
                         </div>
                         <div class="p-3 d-flex flex-column flex-grow-1">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-light text-dark border">{{ product.category_name }}</span>
+                                {% if product.category_name %}<span class="badge bg-light text-dark border">{{ product.category_name }}</span>{% endif %}
                                 {% if product.kind == 'donation' %}
                                     <span class="badge-status badge-donation"><i class="bi bi-gift-fill"></i> Don gratuit</span>
                                 {% elif product.kind == 'unsold' %}

@@ -26,6 +26,9 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), required=False, allow_null=True, default=None
+    )
     category_name = serializers.CharField(source="category.name", read_only=True)
     merchant_name = serializers.CharField(source="merchant.business_name", read_only=True)
     merchant_city = serializers.CharField(source="merchant.city", read_only=True)
@@ -69,23 +72,18 @@ class ProductSerializer(serializers.ModelSerializer):
         kind = attrs.get("kind", getattr(self.instance, "kind", None))
         original = Decimal(attrs.get("original_price", getattr(self.instance, "original_price", 0)))
         offer = Decimal(attrs.get("offer_price", getattr(self.instance, "offer_price", 0)))
-        credit = Decimal(attrs.get("credit_cost", getattr(self.instance, "credit_cost", 0)))
+        attrs["credit_cost"] = Decimal("0.00")
         if kind == Product.Kind.DONATION:
             attrs["original_price"] = Decimal("0.00")
             attrs["offer_price"] = Decimal("0.00")
-            attrs["credit_cost"] = Decimal("0.00")
         elif kind == Product.Kind.DISCOUNT:
             if original <= 0 or offer <= 0 or offer >= original:
                 raise serializers.ValidationError(
                     {"offer_price": "Le prix solidaire doit être supérieur à 0 et inférieur au prix d'origine."}
                 )
-            if credit <= 0:
-                raise serializers.ValidationError({"credit_cost": "Une promotion solidaire a un coût en crédits."})
         elif kind == Product.Kind.UNSOLD:
             if original <= 0:
                 raise serializers.ValidationError({"original_price": "Indiquez le prix de référence de l'invendu."})
-            if credit < 0:
-                raise serializers.ValidationError({"credit_cost": "Le coût en crédits ne peut pas être négatif."})
         return attrs
 
 

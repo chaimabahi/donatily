@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div>
                 <h3 class="fw-bold mb-1"><i class="bi bi-stars text-warning me-2"></i>Mes Formules d'Abonnement Solidaire</h3>
-                <p class="text-muted small mb-0">Créez des formules régulières permettant aux associations de recevoir des quotas de crédits pour vos produits.</p>
+                <p class="text-muted small mb-0">Créez des formules régulières pour sceller des partenariats solidaires durables avec les associations.</p>
             </div>
             <a href="{% url 'merchant-plan-create' %}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-lg me-1"></i> Créer une formule
@@ -37,8 +37,8 @@
                                 <span class="fw-bold text-dark">{{ plan.price }} TND</span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span class="small text-muted">Crédits alloués :</span>
-                                <span class="fw-bold text-success">{{ plan.credits }} pts</span>
+                                <span class="small text-muted">Durée de validité :</span>
+                                <span class="fw-bold text-success">{{ plan.duration_days }} jours</span>
                             </div>
                         </div>
 

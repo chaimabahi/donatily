@@ -7,10 +7,8 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from apps.accounts.services import log_activity, notify
 from apps.associations.models import Association
 from apps.products.models import Product
-from apps.subscriptions.models import CreditTransaction
-from apps.subscriptions.services import apply_credit
 
-from .models import Collection, Reservation, ReservationItem
+from .models import Collection, Reservation, ReservationItem, ReservationMessage
 
 
 def _assert_party(reservation, actor):
@@ -28,21 +26,10 @@ def _restore_inventory(reservation, actor):
         product = Product.objects.select_for_update().get(pk=item.product_id)
         product.stock += item.quantity
         product.save(update_fields=["stock", "updated_at"])
-    if reservation.credits_spent > 0:
-        apply_credit(
-            association=reservation.association,
-            amount=reservation.credits_spent,
-            tx_type=CreditTransaction.Type.REFUND,
-            description=f"Remboursement de la réservation #{reservation.pk}",
-            reservation=reservation,
-            created_by=actor,
-        )
 
 
 @transaction.atomic
 def create_reservation(*, association, items, pickup_date, notes, actor):
-    if association.status != Association.Status.APPROVED or not association.user.is_verified:
-        raise ValidationError({"detail": "Seule une association vérifiée peut réserver."})
     if not items:
         raise ValidationError({"items": "Ajoutez au moins un produit."})
     if pickup_date < timezone.localdate():
@@ -50,7 +37,6 @@ def create_reservation(*, association, items, pickup_date, notes, actor):
 
     merchant = None
     locked_lines = []
-    total = Decimal("0.00")
     seen = set()
     for raw in items:
         product_id = raw["product_id"]
@@ -64,7 +50,7 @@ def create_reservation(*, association, items, pickup_date, notes, actor):
             product = Product.objects.select_for_update().select_related("merchant").get(pk=product_id)
         except Product.DoesNotExist as exc:
             raise ValidationError({"items": "Un des produits est introuvable."}) from exc
-        if product.status != Product.Status.APPROVED or product.merchant.status != "approved":
+        if product.status != Product.Status.APPROVED:
             raise ValidationError({"items": f"{product.name} n'est pas disponible."})
         if merchant is None:
             merchant = product.merchant
@@ -72,53 +58,39 @@ def create_reservation(*, association, items, pickup_date, notes, actor):
             raise ValidationError({"items": "Une réservation concerne un seul commerçant."})
         if quantity > product.stock:
             raise ValidationError({"items": f"Stock insuffisant pour {product.name} ({product.stock} disponible)."})
-        unit_cost = Decimal(product.credit_cost).quantize(Decimal("0.01"))
-        total += (unit_cost * quantity).quantize(Decimal("0.01"))
-        locked_lines.append((product, quantity, unit_cost))
-
-    locked_association = Association.objects.select_for_update().get(pk=association.pk)
-    if locked_association.credit_balance < total:
-        raise ValidationError({"detail": "Crédits insuffisants pour cette réservation."})
+        locked_lines.append((product, quantity))
 
     reservation = Reservation.objects.create(
-        association=locked_association,
+        association=association,
         merchant=merchant,
         pickup_date=pickup_date,
         notes=(notes or "").strip(),
-        credits_spent=total.quantize(Decimal("0.01")),
+        credits_spent=Decimal("0.00"),
     )
-    for product, quantity, unit_cost in locked_lines:
+    for product, quantity in locked_lines:
         product.stock -= quantity
         product.save(update_fields=["stock", "updated_at"])
         ReservationItem.objects.create(
             reservation=reservation,
             product=product,
             quantity=quantity,
-            unit_credit_cost=unit_cost,
+            unit_credit_cost=Decimal("0.00"),
             product_name=product.name,
         )
-    if reservation.credits_spent > 0:
-        apply_credit(
-            association=locked_association,
-            amount=-reservation.credits_spent,
-            tx_type=CreditTransaction.Type.DEBIT,
-            description=f"Réservation #{reservation.pk} chez {merchant.business_name}",
-            reservation=reservation,
-            created_by=actor,
-        )
+
+    # Direct notification to merchant
     notify(
         merchant.user,
-        "Nouvelle réservation",
-        f"{locked_association.name} a réservé des produits pour le {pickup_date:%d/%m/%Y}.",
-        f"/merchant/reservations/{reservation.pk}/",
+        "Nouvelle réservation reçue",
+        f"L'association « {association.name} » a réservé des dons pour le {pickup_date:%d/%m/%Y}.",
+        f"/merchant/reservations/",
     )
     log_activity(
         actor,
         "reservation.create",
         "reservation",
         reservation.pk,
-        f"Réservation #{reservation.pk} créée.",
-        {"credits": str(reservation.credits_spent)},
+        f"Réservation #{reservation.pk} créée par {association.name}.",
     )
     return reservation
 
@@ -139,11 +111,12 @@ def accept_reservation(*, reservation_id, actor, notes=""):
         notes=(notes or "").strip(),
         organized_by=actor,
     )
+    # Notify association that reservation is accepted and chat is open
     notify(
         reservation.association.user,
         "Réservation acceptée",
-        f"{reservation.merchant.business_name} a accepté la collecte du {reservation.pickup_date:%d/%m/%Y}.",
-        f"/association/reservations/{reservation.pk}/",
+        f"« {reservation.merchant.business_name} » a accepté votre réservation du {reservation.pickup_date:%d/%m/%Y}. La messagerie directe est désormais ouverte !",
+        f"/association/reservations/",
     )
     log_activity(actor, "reservation.accept", "reservation", reservation.pk, f"Réservation #{reservation.pk} acceptée.")
     return reservation
@@ -166,8 +139,8 @@ def reject_reservation(*, reservation_id, actor, reason):
     notify(
         reservation.association.user,
         "Réservation refusée",
-        reason.strip(),
-        f"/association/reservations/{reservation.pk}/",
+        f"Votre réservation chez « {reservation.merchant.business_name} » a été refusée: {reason.strip()}",
+        f"/association/reservations/",
     )
     log_activity(actor, "reservation.reject", "reservation", reservation.pk, f"Réservation #{reservation.pk} refusée.")
     return reservation
@@ -195,8 +168,8 @@ def cancel_reservation(*, reservation_id, actor, reason=""):
     notify(
         reservation.merchant.user,
         "Réservation annulée",
-        f"{reservation.association.name} a annulé la réservation #{reservation.pk}.",
-        f"/merchant/reservations/{reservation.pk}/",
+        f"L'association « {reservation.association.name} » a annulé la réservation #{reservation.pk}.",
+        f"/merchant/reservations/",
     )
     log_activity(actor, "reservation.cancel", "reservation", reservation.pk, f"Réservation #{reservation.pk} annulée.")
     return reservation
@@ -221,7 +194,7 @@ def complete_collection(*, collection_id, actor, notes=""):
     notify(
         reservation.association.user,
         "Collecte confirmée",
-        f"La collecte chez {reservation.merchant.business_name} est enregistrée.",
+        f"La collecte des dons chez « {reservation.merchant.business_name} » a été confirmée.",
         f"/association/collections/",
     )
     log_activity(actor, "collection.complete", "collection", collection.pk, f"Collecte #{collection.pk} effectuée.")
@@ -248,7 +221,45 @@ def miss_collection(*, collection_id, actor, notes=""):
         reservation.association.user,
         "Collecte manquée",
         collection.notes,
-        f"/association/reservations/{reservation.pk}/",
+        f"/association/reservations/",
     )
     log_activity(actor, "collection.miss", "collection", collection.pk, f"Collecte #{collection.pk} manquée.")
     return collection
+
+
+@transaction.atomic
+def post_reservation_message(*, reservation_id, actor, content):
+    """Enables messaging between association and merchant once reservation is approved/accepted."""
+    reservation = Reservation.objects.select_related("association__user", "merchant__user").get(pk=reservation_id)
+    _assert_party(reservation, actor)
+
+    if reservation.status not in {Reservation.Status.ACCEPTED, Reservation.Status.COLLECTED}:
+        raise ValidationError({"detail": "La messagerie est accessible uniquement après approbation de la réservation par le commerçant."})
+
+    content_clean = (content or "").strip()
+    if not content_clean:
+        raise ValidationError({"content": "Le message ne peut pas être vide."})
+
+    msg = ReservationMessage.objects.create(
+        reservation=reservation,
+        sender=actor,
+        content=content_clean,
+    )
+
+    # Notify recipient
+    if actor.id == reservation.association.user_id:
+        recipient = reservation.merchant.user
+        sender_label = reservation.association.name
+        link = f"/merchant/reservations/"
+    else:
+        recipient = reservation.association.user
+        sender_label = reservation.merchant.business_name
+        link = f"/association/reservations/"
+
+    notify(
+        recipient,
+        f"Nouveau message de {sender_label}",
+        f"{content_clean[:80]}...",
+        link,
+    )
+    return msg

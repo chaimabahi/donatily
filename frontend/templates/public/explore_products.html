@@ -56,7 +56,7 @@
                     </div>
                     <div class="p-3 d-flex flex-column flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-light text-dark border">{{ product.category_name }}</span>
+                            {% if product.category_name %}<span class="badge bg-light text-dark border">{{ product.category_name }}</span>{% endif %}
                             {% if product.kind == 'donation' %}
                                 <span class="badge-status badge-donation"><i class="bi bi-gift-fill"></i> Don gratuit</span>
                             {% elif product.kind == 'unsold' %}
@@ -77,8 +77,8 @@
                                 <span class="fw-bold text-dark">{{ product.stock }} {{ product.unit }}</span>
                             </div>
                             <div class="d-flex justify-content-between mt-1">
-                                <span class="text-muted">Coût crédit :</span>
-                                <span class="fw-bold text-success">{{ product.credit_cost }} crédits</span>
+                                <span class="text-muted">Accès solidaire :</span>
+                                <span class="badge bg-success-subtle text-success">Don direct</span>
                             </div>
                         </div>
 

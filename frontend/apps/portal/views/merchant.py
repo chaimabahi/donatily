@@ -65,15 +65,16 @@ def product_create_view(request):
     categories = cat_data if isinstance(cat_data, list) else []
 
     if request.method == "POST":
+        cat_val = request.POST.get("category")
         payload = {
             "name": request.POST.get("name", "").strip(),
-            "category": int(request.POST.get("category")),
+            "category": int(cat_val) if cat_val else None,
             "description": request.POST.get("description", "").strip(),
             "kind": request.POST.get("kind"),
             "unit": request.POST.get("unit", "piece"),
             "original_price": request.POST.get("original_price", "0.00"),
             "offer_price": request.POST.get("offer_price", "0.00"),
-            "credit_cost": request.POST.get("credit_cost", "0.00"),
+            "credit_cost": "0.00",
             "stock": int(request.POST.get("stock", 0)),
             "expiry_date": request.POST.get("expiry_date") or None,
         }
@@ -109,15 +110,16 @@ def product_edit_view(request, pk):
     categories = cat_data if isinstance(cat_data, list) else []
 
     if request.method == "POST":
+        cat_val = request.POST.get("category")
         payload = {
             "name": request.POST.get("name", "").strip(),
-            "category": int(request.POST.get("category")),
+            "category": int(cat_val) if cat_val else None,
             "description": request.POST.get("description", "").strip(),
             "kind": request.POST.get("kind"),
             "unit": request.POST.get("unit", "piece"),
             "original_price": request.POST.get("original_price", "0.00"),
             "offer_price": request.POST.get("offer_price", "0.00"),
-            "credit_cost": request.POST.get("credit_cost", "0.00"),
+            "credit_cost": "0.00",
             "stock": int(request.POST.get("stock", 0)),
             "expiry_date": request.POST.get("expiry_date") or None,
         }
@@ -172,7 +174,7 @@ def plan_create_view(request):
             "name": request.POST.get("name", "").strip(),
             "description": request.POST.get("description", "").strip(),
             "price": request.POST.get("price", "0.00"),
-            "credits": request.POST.get("credits", "10.00"),
+            "credits": "0.00",
             "duration_days": int(request.POST.get("duration_days", 30)),
             "is_active": request.POST.get("is_active") == "on",
         }
@@ -201,7 +203,7 @@ def plan_edit_view(request, pk):
             "name": request.POST.get("name", "").strip(),
             "description": request.POST.get("description", "").strip(),
             "price": request.POST.get("price", "0.00"),
-            "credits": request.POST.get("credits", "10.00"),
+            "credits": "0.00",
             "duration_days": int(request.POST.get("duration_days", 30)),
             "is_active": request.POST.get("is_active") == "on",
         }
@@ -232,7 +234,7 @@ def subscription_accept_view(request, pk):
 
     code, resp = client.post(f"/api/subscriptions/{pk}/action/", json={"action": "accept"})
     if code == 200:
-        messages.success(request, "Abonnement validé ! Les crédits solidaires ont été crédités à l'association.")
+        messages.success(request, "Abonnement validé ! Le partenariat solidaire est désormais actif.")
     else:
         messages.error(request, format_api_errors(resp))
     return redirect("merchant-subscriptions")
@@ -303,7 +305,29 @@ def reservation_reject_view(request, pk):
         json={"action": "reject", "reason": reason},
     )
     if code == 200:
-        messages.success(request, "Réservation refusée. Les crédits ont été remboursés à l'association.")
+        messages.success(request, "Réservation refusée.")
+    else:
+        messages.error(request, format_api_errors(resp))
+    return redirect("merchant-reservations")
+
+
+def reservation_message_send_view(request, pk):
+    """Send a message to the association for an accepted reservation."""
+    if request.method != "POST":
+        return redirect("merchant-reservations")
+
+    client = APIClient(request)
+    content = request.POST.get("content", "").strip()
+    if not content:
+        messages.error(request, "Le message ne peut pas être vide.")
+        return redirect("merchant-reservations")
+
+    code, resp = client.post(
+        f"/api/reservations/{pk}/messages/",
+        json={"content": content},
+    )
+    if code == 201:
+        messages.success(request, "Votre message a été envoyé à l'association.")
     else:
         messages.error(request, format_api_errors(resp))
     return redirect("merchant-reservations")
