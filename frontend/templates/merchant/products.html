@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes Produits & Dons — Commerçant — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-box-seam text-success me-2"></i>Mes Produits, Invendus & Dons</h3>
+                <p class="text-muted small mb-0">Pilotez votre inventaire, mettez à jour les stocks et suivez la modération.</p>
+            </div>
+            <a href="{% url 'merchant-product-create' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Publier un nouveau lot
+            </a>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="card border-0 shadow-sm p-3 mb-4 rounded-3 bg-white">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" name="q" class="form-control" placeholder="Rechercher dans mes produits..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="kind" class="form-select">
+                        <option value="">Tous types</option>
+                        <option value="donation" {% if selected_kind == 'donation' %}selected{% endif %}>Don gratuit</option>
+                        <option value="unsold" {% if selected_kind == 'unsold' %}selected{% endif %}>Invendu</option>
+                        <option value="discount" {% if selected_kind == 'discount' %}selected{% endif %}>Promotion</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">Tous statuts</option>
+                        <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>Publié</option>
+                        <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>En modération</option>
+                        <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Refusé</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                    <a href="{% url 'merchant-products' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Produit</th>
+                            <th>Catégorie</th>
+                            <th>Type</th>
+                            <th>Stock</th>
+                            <th>Prix / Coût crédits</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prod in products %}
+                            <tr>
+                                <td style="width: 70px;">
+                                    <div class="rounded-2 overflow-hidden bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        {% if prod.primary_image %}
+                                            <img src="{{ prod.primary_image }}" alt="{{ prod.name }}" class="w-100 h-100 object-fit-cover">
+                                        {% else %}
+                                            <i class="bi bi-basket text-muted"></i>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ prod.name }}</div>
+                                    <div class="small text-muted text-truncate" style="max-width: 250px;">{{ prod.description }}</div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ prod.category_name }}</span></td>
+                                <td>
+                                    {% if prod.kind == 'donation' %}
+                                        <span class="badge-status badge-donation">Don</span>
+                                    {% elif prod.kind == 'unsold' %}
+                                        <span class="badge-status badge-unsold">Invendu</span>
+                                    {% else %}
+                                        <span class="badge-status badge-discount">Solidaire</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="fw-bold text-dark">{{ prod.stock }} {{ prod.unit }}</span></td>
+                                <td>
+                                    <div class="small fw-semibold">{{ prod.credit_cost }} crédits</div>
+                                    {% if prod.offer_price > 0 %}
+                                        <div class="small text-muted">{{ prod.offer_price }} TND</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if prod.status == 'approved' %}
+                                        <span class="badge-status badge-approved">Publié</span>
+                                    {% elif prod.status == 'pending' %}
+                                        <span class="badge-status badge-pending">En modération</span>
+                                    {% elif prod.status == 'rejected' %}
+                                        <span class="badge-status badge-rejected" title="{{ prod.moderation_note }}">Refusé</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ prod.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="{% url 'merchant-product-edit' prod.id %}" class="btn btn-light btn-sm text-primary p-1" title="Modifier">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form method="post" action="{% url 'merchant-product-delete' prod.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-light btn-sm text-danger p-1" data-confirm="Supprimer ce produit ?" title="Supprimer">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    Vous n'avez pas encore publié de produit. Cliquez sur « Publier un nouveau lot ».
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

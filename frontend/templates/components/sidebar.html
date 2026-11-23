@@ -1,0 +1,97 @@
+<div class="dashboard-sidebar d-none d-lg-flex">
+    <div class="mb-3 px-2">
+        <span class="badge bg-light text-dark border w-100 py-2 text-uppercase fw-bold letter-spacing">
+            {% if user_role == 'association' %}
+                <i class="bi bi-heart-fill text-danger me-1"></i> Espace Association
+            {% elif user_role == 'merchant' %}
+                <i class="bi bi-shop text-success me-1"></i> Espace Commerçant
+            {% elif user_role == 'admin' %}
+                <i class="bi bi-shield-fill-check text-primary me-1"></i> Administration
+            {% endif %}
+        </span>
+    </div>
+
+    <nav class="nav flex-column flex-grow-1">
+        {% if user_role == 'association' %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'association-dashboard' %}active{% endif %}" href="{% url 'association-dashboard' %}">
+                <i class="bi bi-speedometer2"></i> Vue d'ensemble
+            </a>
+            <a class="nav-link {% if 'products' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'association-products' %}">
+                <i class="bi bi-search-heart"></i> Catalogue des dons
+            </a>
+            <a class="nav-link {% if 'reservations' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'association-reservations' %}">
+                <i class="bi bi-cart-check"></i> Mes réservations
+            </a>
+            <a class="nav-link {% if 'collections' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'association-collections' %}">
+                <i class="bi bi-truck"></i> Suivi des collectes
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'association-plans' %}active{% endif %}" href="{% url 'association-plans' %}">
+                <i class="bi bi-stars"></i> Formules solidaires
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'association-subscriptions' %}active{% endif %}" href="{% url 'association-subscriptions' %}">
+                <i class="bi bi-award"></i> Mes abonnements
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'association-credits' %}active{% endif %}" href="{% url 'association-credits' %}">
+                <i class="bi bi-coin"></i> Solde de crédits
+            </a>
+            <a class="nav-link {% if 'beneficiaries' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'association-beneficiaries' %}">
+                <i class="bi bi-people"></i> Bénéficiaires & besoins
+            </a>
+            <a class="nav-link {% if 'distributions' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'association-distributions' %}">
+                <i class="bi bi-gift"></i> Distributions
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'association-profile' %}active{% endif %}" href="{% url 'association-profile' %}">
+                <i class="bi bi-building"></i> Profil association
+            </a>
+
+        {% elif user_role == 'merchant' %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'merchant-dashboard' %}active{% endif %}" href="{% url 'merchant-dashboard' %}">
+                <i class="bi bi-speedometer2"></i> Vue d'ensemble
+            </a>
+            <a class="nav-link {% if 'products' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'merchant-products' %}">
+                <i class="bi bi-box-seam"></i> Produits & Dons
+            </a>
+            <a class="nav-link {% if 'plans' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'merchant-plans' %}">
+                <i class="bi bi-stars"></i> Formules solidaires
+            </a>
+            <a class="nav-link {% if 'subscriptions' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'merchant-subscriptions' %}">
+                <i class="bi bi-people"></i> Abonnements reçus
+            </a>
+            <a class="nav-link {% if 'reservations' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'merchant-reservations' %}">
+                <i class="bi bi-inbox"></i> Réservations reçues
+            </a>
+            <a class="nav-link {% if 'collections' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'merchant-collections' %}">
+                <i class="bi bi-calendar-check"></i> Collectes à organiser
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'merchant-profile' %}active{% endif %}" href="{% url 'merchant-profile' %}">
+                <i class="bi bi-shop"></i> Profil commerce
+            </a>
+
+        {% elif user_role == 'admin' %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}" href="{% url 'admin-dashboard' %}">
+                <i class="bi bi-speedometer2"></i> Vue globale plateforme
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-users' %}active{% endif %}" href="{% url 'admin-users' %}">
+                <i class="bi bi-people-fill"></i> Utilisateurs & Validation
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-products' %}active{% endif %}" href="{% url 'admin-products' %}">
+                <i class="bi bi-patch-check"></i> Modération des offres
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-categories' %}active{% endif %}" href="{% url 'admin-categories' %}">
+                <i class="bi bi-tags"></i> Gestion catégories
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-reservations' %}active{% endif %}" href="{% url 'admin-reservations' %}">
+                <i class="bi bi-cart4"></i> Réservations & Collectes
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-distributions' %}active{% endif %}" href="{% url 'admin-distributions' %}">
+                <i class="bi bi-heart-pulse"></i> Distributions & Impact
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-subscriptions' %}active{% endif %}" href="{% url 'admin-subscriptions' %}">
+                <i class="bi bi-credit-card-2-front"></i> Abonnements & Crédits
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin-activity' %}active{% endif %}" href="{% url 'admin-activity' %}">
+                <i class="bi bi-journal-text"></i> Journal d'activité
+            </a>
+        {% endif %}
+    </nav>
+</div>

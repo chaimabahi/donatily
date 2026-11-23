@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Donatily — Plateforme Tunisienne de Solidarité & Économie Circulaire{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center text-lg-start">
+    <div class="container-fluid px-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge bg-white text-success px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+                    <i class="bi bi-shield-check me-1"></i> Plateforme solidaire certifiée en Tunisie
+                </span>
+                <h1 class="display-4 fw-extrabold mb-3">
+                    Connectons la générosité des commerçants à l'impact des associations.
+                </h1>
+                <p class="lead mb-4 text-white-50">
+                    Donatily transforme les invendus, surplus et dons en opportunités vitales pour les clubs caritatifs et familles vulnérables à travers toute la Tunisie.
+                </p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                    <a href="{% url 'portal-explore-products' %}" class="btn btn-warning btn-lg px-4 fw-bold shadow">
+                        <i class="bi bi-search me-2"></i> Parcourir les dons disponibles
+                    </a>
+                    <a href="{% url 'portal-register-merchant' %}" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+                        <i class="bi bi-shop me-2"></i> Rejoindre comme commerçant
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 rounded-4 shadow-lg p-4 bg-white text-dark">
+                    <h5 class="fw-bold mb-3 text-success d-flex align-items-center gap-2">
+                        <i class="bi bi-pie-chart-fill"></i> Impact Solidaire en Direct
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <h3 class="fw-bold text-success mb-1">{{ total_saved_meals|default:"14,250" }}</h3>
+                                <div class="small text-muted">Repas & lots sauvés</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <h3 class="fw-bold text-primary mb-1">{{ total_associations_count|default:"48" }}</h3>
+                                <div class="small text-muted">Associations actives</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <h3 class="fw-bold text-warning mb-1">{{ total_merchants_count|default:"86" }}</h3>
+                                <div class="small text-muted">Commerces solidaires</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <h3 class="fw-bold text-danger mb-1">{{ total_kg_co2|default:"8,900" }} kg</h3>
+                                <div class="small text-muted">Émissions CO₂ évitées</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 rounded-3" style="background-color: #ecfdf5; border-left: 4px solid #059669;">
+                        <div class="small text-success fw-bold"><i class="bi bi-geo-alt-fill me-1"></i> Présent dans les gouvernorats :</div>
+                        <div class="small text-muted">Grand Tunis, Sfax, Sousse, Monastir, Nabeul, Bizerte.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-white">
+    <div class="container-fluid px-lg-5">
+        <div class="text-center max-w-xl mx-auto mb-5">
+            <span class="text-uppercase text-success fw-bold small">Modèle d'Économie Circulaire</span>
+            <h2 class="fw-bold">Comment fonctionne Donatily ?</h2>
+            <p class="text-muted">Un cycle transparent, sécurisé et traçable de la publication jusqu'à la distribution.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 border bg-light h-100 text-center">
+                    <div class="stat-icon green mx-auto mb-3">
+                        <i class="bi bi-box-arrow-up"></i>
+                    </div>
+                    <h5 class="fw-bold">1. Le commerçant publie</h5>
+                    <p class="text-muted small">
+                        Boulangeries, supermarchés, maraîchers et épiceries publient dons, invendus à dates courtes ou lots à prix solidaire.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 border bg-light h-100 text-center">
+                    <div class="stat-icon blue mx-auto mb-3">
+                        <i class="bi bi-bag-check"></i>
+                    </div>
+                    <h5 class="fw-bold">2. L'association réserve</h5>
+                    <p class="text-muted small">
+                        Les associations vérifiées réservent les lots avec leurs crédits solidaires ou gratuitement pour les dons directs.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 border bg-light h-100 text-center">
+                    <div class="stat-icon amber mx-auto mb-3">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h5 class="fw-bold">3. Collecte & Distribution</h5>
+                    <p class="text-muted small">
+                        Collecte organisée au magasin puis redistribution immédiate aux bénéficiaires recensés et enregistrés sur la plateforme.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Offers Section -->
+<section class="py-5">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1">Dernières offres et dons publiés</h3>
+                <p class="text-muted mb-0 small">Disponibles immédiatement pour les associations et clubs solidaires.</p>
+            </div>
+            <a href="{% url 'portal-explore-products' %}" class="btn btn-outline-primary">
+                Voir tout le catalogue <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for product in featured_products %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card-product">
+                        <div class="product-img">
+                            {% if product.primary_image %}
+                                <img src="{{ product.primary_image }}" alt="{{ product.name }}" class="w-100 h-100 object-fit-cover">
+                            {% else %}
+                                <i class="bi bi-basket2 fs-1"></i>
+                            {% endif %}
+                        </div>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-light text-dark border">{{ product.category_name }}</span>
+                                {% if product.kind == 'donation' %}
+                                    <span class="badge-status badge-donation"><i class="bi bi-gift-fill"></i> Don gratuit</span>
+                                {% elif product.kind == 'unsold' %}
+                                    <span class="badge-status badge-unsold"><i class="bi bi-arrow-repeat"></i> Invendu</span>
+                                {% else %}
+                                    <span class="badge-status badge-discount"><i class="bi bi-tag-fill"></i> Solidaire</span>
+                                {% endif %}
+                            </div>
+
+                            <h6 class="fw-bold mb-1 text-truncate">{{ product.name }}</h6>
+                            <p class="small text-muted mb-3 flex-grow-1 text-truncate-2">{{ product.description }}</p>
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <div>
+                                    <div class="small fw-semibold text-dark"><i class="bi bi-shop me-1"></i>{{ product.merchant_name }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>{{ product.merchant_city }}</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success-subtle text-success fw-bold">Stock : {{ product.stock }} {{ product.unit }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Des dizaines d'offres sont en cours de modération. Revenez très bientôt !</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container-fluid px-lg-5">
+        <h2 class="fw-bold mb-3">Prêt à agir pour la solidarité et l'anti-gaspillage ?</h2>
+        <p class="lead mb-4 text-white-50">Inscrivez votre structure en quelques clics et participez activement à l'économie solidaire tunisienne.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'portal-register-association' %}" class="btn btn-light btn-lg text-primary fw-bold px-4">
+                Espace Association
+            </a>
+            <a href="{% url 'portal-register-merchant' %}" class="btn btn-outline-light btn-lg fw-bold px-4">
+                Espace Commerçant
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

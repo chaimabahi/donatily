@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Modération des Offres — Administration — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-patch-check text-primary me-2"></i>Modération & Gestion des Produits</h3>
+                <p class="text-muted small mb-0">Approuvez les offres de dons, invendus et promotions soumises par les commerçants partenaires.</p>
+            </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
+            <a href="{% url 'admin-products' %}" class="btn btn-sm {% if not selected_status %}btn-dark{% else %}btn-outline-secondary{% endif %}">Tous</a>
+            <a href="{% url 'admin-products' %}?status=pending" class="btn btn-sm {% if selected_status == 'pending' %}btn-warning text-dark{% else %}btn-outline-secondary{% endif %}">En modération</a>
+            <a href="{% url 'admin-products' %}?status=approved" class="btn btn-sm {% if selected_status == 'approved' %}btn-success{% else %}btn-outline-secondary{% endif %}">Publiés</a>
+            <a href="{% url 'admin-products' %}?status=rejected" class="btn btn-sm {% if selected_status == 'rejected' %}btn-danger{% else %}btn-outline-secondary{% endif %}">Refusés</a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Produit</th>
+                            <th>Commerçant & Ville</th>
+                            <th>Catégorie</th>
+                            <th>Type</th>
+                            <th>Stock</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prod in products %}
+                            <tr>
+                                <td class="fw-bold">#{{ prod.id }}</td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ prod.name }}</div>
+                                    <div class="small text-muted text-truncate" style="max-width: 250px;">{{ prod.description }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ prod.merchant_name }}</div>
+                                    <div class="small text-muted">{{ prod.merchant_city }}</div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ prod.category_name }}</span></td>
+                                <td>
+                                    {% if prod.kind == 'donation' %}
+                                        <span class="badge-status badge-donation">Don gratuit</span>
+                                    {% elif prod.kind == 'unsold' %}
+                                        <span class="badge-status badge-unsold">Invendu</span>
+                                    {% else %}
+                                        <span class="badge-status badge-discount">Solidaire</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ prod.stock }} {{ prod.unit }}</td>
+                                <td>
+                                    {% if prod.status == 'approved' %}
+                                        <span class="badge-status badge-approved">Publié</span>
+                                    {% elif prod.status == 'pending' %}
+                                        <span class="badge-status badge-pending">En modération</span>
+                                    {% elif prod.status == 'rejected' %}
+                                        <span class="badge-status badge-rejected">Refusé</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        {% if prod.status != 'approved' %}
+                                            <form method="post" action="{% url 'admin-product-moderate' prod.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="approve">
+                                                <button type="submit" class="btn btn-sm btn-success px-2 py-1" title="Approuver">
+                                                    <i class="bi bi-check-lg"></i> Valider
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if prod.status != 'rejected' %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger px-2 py-1" data-bs-toggle="collapse" data-bs-target="#rejProd{{ prod.id }}" title="Refuser">
+                                                <i class="bi bi-x-lg"></i> Refuser
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                    <div class="collapse mt-2" id="rejProd{{ prod.id }}">
+                                        <form method="post" action="{% url 'admin-product-moderate' prod.id %}" class="p-2 border rounded-2 bg-light">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="reject">
+                                            <input type="text" name="reason" class="form-control form-control-sm mb-1" placeholder="Motif du rejet..." required>
+                                            <button type="submit" class="btn btn-danger btn-sm w-100">Confirmer</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    Aucune offre trouvée dans cette section.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

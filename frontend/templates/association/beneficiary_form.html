@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if mode == 'create' %}Nouveau Bénéficiaire{% else %}Modifier Bénéficiaire{% endif %} — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <a href="{% url 'association-beneficiaries' %}" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+            </a>
+            <h3 class="fw-bold mb-1">
+                {% if mode == 'create' %}<i class="bi bi-person-plus text-success me-2"></i>Nouveau Bénéficiaire{% else %}<i class="bi bi-pencil-square text-primary me-2"></i>Modifier Fiche Bénéficiaire{% endif %}
+            </h3>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white" style="max-width: 800px;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Prénom *</label>
+                        <input type="text" name="first_name" class="form-control" value="{{ beneficiary.first_name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Nom de famille *</label>
+                        <input type="text" name="last_name" class="form-control" value="{{ beneficiary.last_name }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Numéro de téléphone</label>
+                        <input type="text" name="phone" class="form-control" value="{{ beneficiary.phone }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Taille du foyer (nombre de personnes) *</label>
+                        <input type="number" name="household_size" class="form-control" min="1" value="{{ beneficiary.household_size|default:1 }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Ville / Gouvernorat</label>
+                        <input type="text" name="city" class="form-control" value="{{ beneficiary.city }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Adresse / Quartier</label>
+                        <input type="text" name="address" class="form-control" value="{{ beneficiary.address }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Niveau de priorité *</label>
+                        <select name="priority" class="form-select">
+                            <option value="high" {% if beneficiary.priority == 'high' %}selected{% endif %}>Haute (urgence alimentaire / santé)</option>
+                            <option value="medium" {% if beneficiary.priority == 'medium' or not beneficiary %}selected{% endif %}>Moyenne</option>
+                            <option value="low" {% if beneficiary.priority == 'low' %}selected{% endif %}>Faible</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="isActiveCheck" {% if beneficiary.is_active or not beneficiary %}checked{% endif %}>
+                            <label class="form-check-label small fw-semibold" for="isActiveCheck">
+                                Bénéficiaire actif (éligible aux distributions)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Besoins spécifiques & denrées requises *</label>
+                        <textarea name="needs" class="form-control" rows="3" placeholder="Pains, lait pour bébé, huile, semoule, sans gluten..." required>{{ beneficiary.needs }}</textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Notes internes / Observations de suivi</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Informations confidentielles pour l'équipe sociale...">{{ beneficiary.notes }}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        {% if mode == 'create' %}Enregistrer le bénéficiaire{% else %}Mettre à jour la fiche{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

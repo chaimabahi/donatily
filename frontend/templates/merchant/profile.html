@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil Commerce — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1"><i class="bi bi-shop text-success me-2"></i>Profil Commerce & Entreprise</h3>
+            <p class="text-muted small">Informations commerciales, adresse de collecte et horaires d'ouverture.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white" style="max-width: 800px;">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Raison sociale / Nom commercial *</label>
+                        <input type="text" name="business_name" class="form-control" value="{{ merchant.business_name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Matricule Fiscal *</label>
+                        <input type="text" name="tax_id" class="form-control" value="{{ merchant.tax_id }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Ville / Gouvernorat *</label>
+                        <input type="text" name="city" class="form-control" value="{{ merchant.city }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Code postal</label>
+                        <input type="text" name="postal_code" class="form-control" value="{{ merchant.postal_code }}">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Adresse du point de collecte *</label>
+                        <input type="text" name="address" class="form-control" value="{{ merchant.address }}" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Horaires d'ouverture / Réception des associations</label>
+                        <input type="text" name="opening_hours" class="form-control" value="{{ merchant.opening_hours }}" placeholder="ex: Lun-Sam 08:00 - 19:30">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Site web ou réseau social</label>
+                        <input type="url" name="website" class="form-control" value="{{ merchant.website }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Logo de l'établissement</label>
+                        <input type="file" name="logo" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Description de votre établissement</label>
+                        <textarea name="description" class="form-control" rows="3">{{ merchant.description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

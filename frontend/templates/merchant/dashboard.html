@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord Commerçant — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1">Espace Commerçant Solidaire</h3>
+                <p class="text-muted small mb-0">Gérez vos dons d'invendus, offres solidaires, et validez les collectes des associations.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'merchant-product-create' %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i> Publier un don / produit
+                </a>
+                <a href="{% url 'merchant-plan-create' %}" class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-stars me-1"></i> Créer formule solidaire
+                </a>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Produits publiés</div>
+                            <h3 class="fw-bold text-success mb-0">{{ stats.published_products|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon green"><i class="bi bi-box-seam"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">En modération : {{ stats.pending_products|default:"0" }}</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Réservations reçues</div>
+                            <h3 class="fw-bold text-warning mb-0">{{ stats.pending_reservations|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon amber"><i class="bi bi-inbox-fill"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">En attente de votre accord</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Collectes prévues</div>
+                            <h3 class="fw-bold text-primary mb-0">{{ stats.scheduled_collections|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon blue"><i class="bi bi-calendar2-check"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">À préparer pour les associations</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Abonnements actifs</div>
+                            <h3 class="fw-bold text-danger mb-0">{{ stats.active_subscriptions|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon rose"><i class="bi bi-people-fill"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">Associations partenaires soutenues</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Pending Reservations & Chart -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-inbox text-warning me-2"></i>Réservations à traiter</span>
+                        <a href="{% url 'merchant-reservations' %}" class="small text-decoration-none">Voir tout</a>
+                    </h5>
+                    <div class="list-group list-group-flush">
+                        {% for res in recent_reservations %}
+                            <div class="list-group-item px-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold">{{ res.association_name }}</span>
+                                    <span class="badge bg-light text-dark border">Collecte le {{ res.pickup_date }}</span>
+                                </div>
+                                <div class="small text-muted mb-2">
+                                    {% for item in res.items %}
+                                        {{ item.product_name }} (x{{ item.quantity }}){% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% if res.status == 'pending' %}
+                                    <div class="d-flex gap-2">
+                                        <form method="post" action="{% url 'merchant-reservation-accept' res.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success px-3">Accepter</button>
+                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#rejectBox{{ res.id }}">
+                                            Refuser
+                                        </button>
+                                    </div>
+                                    <div class="collapse mt-2" id="rejectBox{{ res.id }}">
+                                        <form method="post" action="{% url 'merchant-reservation-reject' res.id %}" class="p-2 border rounded-2 bg-light">
+                                            {% csrf_token %}
+                                            <input type="text" name="reason" class="form-control form-control-sm mb-2" placeholder="Motif du refus obligatoire..." required>
+                                            <button type="submit" class="btn btn-danger btn-sm">Confirmer refus</button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span class="badge-status badge-approved">{{ res.status|title }}</span>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <p class="text-muted small py-3 mb-0">Aucune réservation en attente actuellement.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collections Calendar & Chart -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-bar-chart-line text-success me-2"></i>Activité mensuelle des réservations</span>
+                    </h5>
+                    <div style="height: 220px;">
+                        <canvas id="merchantReservationsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById("merchantReservationsChart");
+    if (ctx) {
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: ["Juin", "Juil", "Août", "Sept", "Oct", "Nov"],
+                datasets: [{
+                    label: "Réservations reçues",
+                    data: [8, 14, 11, 20, 18, 26],
+                    borderColor: "#0d8a5b",
+                    backgroundColor: "rgba(13, 138, 91, 0.1)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: "#f1f5f9" } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

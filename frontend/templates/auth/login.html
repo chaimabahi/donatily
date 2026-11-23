@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion — Donatily{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-success-subtle text-success d-inline-flex p-3 mb-2">
+                        <i class="bi bi-box2-heart-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold">Connexion à Donatily</h3>
+                    <p class="text-muted small">Accédez à votre espace association, commerçant ou administration.</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Adresse e-mail</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                            <input type="email" name="email" class="form-control border-start-0" placeholder="ex: contact@association.tn" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Mot de passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            <input type="password" name="password" class="form-control border-start-0" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Se connecter
+                    </button>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <p class="small text-muted mb-2">Pas encore de compte sur la plateforme ?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'portal-register-association' %}" class="btn btn-sm btn-outline-danger">Créer compte Association</a>
+                        <a href="{% url 'portal-register-merchant' %}" class="btn btn-sm btn-outline-success">Créer compte Commerçant</a>
+                    </div>
+                </div>
+
+                <!-- Demo helper -->
+                <div class="mt-4 p-3 bg-light rounded-3 small">
+                    <div class="fw-bold text-dark mb-1"><i class="bi bi-key-fill text-warning me-1"></i> Comptes de démonstration :</div>
+                    <ul class="list-unstyled mb-0 text-muted" style="font-size: 0.8rem;">
+                        <li><strong>Association:</strong> croissant.rouge@tunisie.tn / AssocPass123!</li>
+                        <li><strong>Commerçant:</strong> contact@boulangerie-elyssa.tn / MerchantPass123!</li>
+                        <li><strong>Administrateur:</strong> admin@donatily.tn / AdminPass123!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

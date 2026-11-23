@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription Commerçant Partenaire — Donatily{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-success-subtle text-success d-inline-flex p-3 mb-2">
+                        <i class="bi bi-shop fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold">Inscription Commerçant ou Entreprise Partenaire</h3>
+                    <p class="text-muted small">Valorisez vos invendus, publiez vos dons et renforcez votre impact RSE en Tunisie.</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Raison sociale / Nom commercial *</label>
+                            <input type="text" name="business_name" class="form-control" placeholder="ex: Boulangerie Elyssa" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Matricule Fiscal (MF) *</label>
+                            <input type="text" name="tax_id" class="form-control" placeholder="ex: 1234567/A/M/000" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Adresse e-mail professionnelle *</label>
+                            <input type="email" name="email" class="form-control" placeholder="contact@commerce.tn" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Numéro de téléphone professionnel *</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+216 71 000 000" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Gouvernorat / Ville *</label>
+                            <input type="text" name="city" class="form-control" placeholder="ex: Tunis, La Marsa, Nabeul..." required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Adresse du point de collecte *</label>
+                            <input type="text" name="address" class="form-control" placeholder="Adresse précise pour les collectes" required>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label small fw-semibold">Horaires d'ouverture / créneaux de collecte</label>
+                            <input type="text" name="opening_hours" class="form-control" placeholder="ex: Du Lundi au Samedi 08h00 - 19h30">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Description de votre activité & types de produits</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Boulangerie, supermarché, grossiste, maraîcher..."></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Mot de passe (8 caractères minimum) *</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Confirmer le mot de passe *</label>
+                            <input type="password" name="password_confirm" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <a href="{% url 'portal-login' %}" class="small text-muted">Déjà inscrit ? Connectez-vous</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                            <i class="bi bi-check2-circle me-1"></i> Créer mon compte Commerçant
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+<footer class="footer-donatily">
+    <div class="container-fluid px-lg-5">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4 col-md-6">
+                <h5 class="text-white fw-bold d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-box2-heart-fill text-success"></i> DONATILY
+                </h5>
+                <p class="small text-secondary">
+                    Première plateforme tunisienne d'économie circulaire et de solidarité connectant commerçants responsables, associations caritatives et clubs solidaires contre le gaspillage et la précarité.
+                </p>
+                <div class="d-flex gap-3 fs-5 text-secondary">
+                    <a href="#" class="text-secondary"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h6 class="text-white fw-semibold mb-3">Plateforme</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><a href="{% url 'portal-explore-products' %}">Catalogue des dons</a></li>
+                    <li><a href="{% url 'portal-explore-merchants' %}">Partenaires en Tunisie</a></li>
+                    <li><a href="{% url 'portal-register-association' %}">Rejoindre comme association</a></li>
+                    <li><a href="{% url 'portal-register-merchant' %}">Devenir commerçant solidaire</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-white fw-semibold mb-3">Sécurité & API</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><span class="text-secondary">Authentification sécurisée JWT</span></li>
+                    <li><span class="text-secondary">Traçabilité complète des collectes</span></li>
+                    <li><a href="{{ backend_api_url }}/api/docs/" target="_blank">Documentation API Swagger <i class="bi bi-box-arrow-up-right small"></i></a></li>
+                    <li><span class="text-secondary">Hébergement Cloud AWS & RDS</span></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-white fw-semibold mb-3">Contact & Gouvernorats</h6>
+                <ul class="list-unstyled small text-secondary d-flex flex-column gap-2">
+                    <li><i class="bi bi-geo-alt me-2 text-danger"></i> Tunis, Sfax, Sousse, Nabeul & Bizerte</li>
+                    <li><i class="bi bi-envelope me-2 text-primary"></i> contact@donatily.tn</li>
+                    <li><i class="bi bi-telephone me-2 text-success"></i> +216 71 100 200</li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="border-secondary opacity-25">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-secondary py-2">
+            <div>&copy; 2026 DONATILY — Tous droits réservés. Économie Circulaire & Solidarité Tunisie.</div>
+            <div class="mt-2 mt-md-0">Conçu avec Django, Bootstrap 5 & PostgreSQL.</div>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Abonnements Reçus — Commerçant — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-people-fill text-success me-2"></i>Abonnements des Associations</h3>
+                <p class="text-muted small mb-0">Validez les demandes d'abonnement solidaire pour allouer les crédits correspondants.</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Association</th>
+                            <th>Ville</th>
+                            <th>Formule</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in subscriptions %}
+                            <tr>
+                                <td class="fw-bold">#{{ sub.id }}</td>
+                                <td class="fw-semibold">{{ sub.association_name }}</td>
+                                <td>{{ sub.association_city }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ sub.plan.name }}</span></td>
+                                <td>{{ sub.start_date|default:"—" }}</td>
+                                <td>{{ sub.end_date|default:"—" }}</td>
+                                <td>
+                                    {% if sub.status == 'pending' %}
+                                        <span class="badge-status badge-pending">En attente</span>
+                                    {% elif sub.status == 'active' %}
+                                        <span class="badge-status badge-active">Actif</span>
+                                    {% elif sub.status == 'rejected' %}
+                                        <span class="badge-status badge-rejected">Refusé</span>
+                                    {% elif sub.status == 'expired' %}
+                                        <span class="badge bg-secondary">Expiré</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ sub.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if sub.status == 'pending' %}
+                                        <div class="d-flex gap-1">
+                                            <form method="post" action="{% url 'merchant-subscription-accept' sub.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success px-2 py-1" data-confirm="Accepter cet abonnement et allouer les crédits ?">
+                                                    Accepter
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{% url 'merchant-subscription-reject' sub.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" data-confirm="Refuser cette demande d'abonnement ?">
+                                                    Refuser
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    Aucune demande d'abonnement reçue pour vos formules.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

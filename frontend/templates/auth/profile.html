@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon Compte & Paramètres — Donatily{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white">
+                <div class="rounded-circle bg-success text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2.2rem; font-weight: 700;">
+                    {{ current_user.email|first|upper }}
+                </div>
+                <h5 class="fw-bold mb-1">{{ current_user.display_name }}</h5>
+                <span class="badge bg-light text-dark border mb-3">{{ current_user.role|title }}</span>
+                <p class="small text-muted mb-0"><i class="bi bi-envelope me-1"></i>{{ current_user.email }}</p>
+                {% if current_user.phone %}
+                    <p class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ current_user.phone }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Edit Contact -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-gear text-primary me-2"></i>Coordonnées du compte</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_contact">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Prénom</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ current_user.first_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Nom</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ current_user.last_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Téléphone de contact</label>
+                            <input type="text" name="phone" class="form-control" value="{{ current_user.phone }}">
+                        </div>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-primary btn-sm px-3">Enregistrer les modifications</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3"><i class="bi bi-shield-lock text-danger me-2"></i>Sécurité & Mot de passe</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Mot de passe actuel</label>
+                        <input type="password" name="old_password" class="form-control" required>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Nouveau mot de passe</label>
+                            <input type="password" name="new_password" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Confirmer le nouveau mot de passe</label>
+                            <input type="password" name="confirm_password" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-danger btn-sm px-3">Modifier le mot de passe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

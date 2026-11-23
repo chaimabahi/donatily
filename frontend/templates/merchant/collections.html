@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Collectes à Organiser — Commerçant — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-calendar2-check text-success me-2"></i>Collectes en Magasin</h3>
+                <p class="text-muted small mb-0">Confirmez la remise effective des denrées aux bénévoles des associations ou signalez une collecte manquée.</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>N° Collecte</th>
+                            <th>Association</th>
+                            <th>Date prévue</th>
+                            <th>Statut</th>
+                            <th>Date effective</th>
+                            <th>Consignes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col in collections %}
+                            <tr>
+                                <td class="fw-bold">#{{ col.id }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ col.association_name }}</div>
+                                    <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ col.association_phone }}</div>
+                                </td>
+                                <td><i class="bi bi-calendar-event me-1 text-primary"></i>{{ col.scheduled_for }}</td>
+                                <td>
+                                    {% if col.status == 'scheduled' %}
+                                        <span class="badge-status badge-pending">Planifiée</span>
+                                    {% elif col.status == 'completed' %}
+                                        <span class="badge-status badge-completed">Effectuée</span>
+                                    {% elif col.status == 'missed' %}
+                                        <span class="badge-status badge-rejected">Manquée</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ col.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ col.completed_at|default:"—" }}</td>
+                                <td class="small text-muted">{{ col.notes|default:"—" }}</td>
+                                <td>
+                                    {% if col.status == 'scheduled' %}
+                                        <div class="d-flex gap-1">
+                                            <form method="post" action="{% url 'merchant-collection-complete' col.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success px-2 py-1" data-confirm="Confirmer la remise des produits à l'association ?">
+                                                    <i class="bi bi-check2"></i> Remis
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{% url 'merchant-collection-miss' col.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" data-confirm="Signaler que l'association ne s'est pas présentée ? Les stocks seront restaurés.">
+                                                    <i class="bi bi-x"></i> Manquée
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted small">Clôturée</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    Aucune collecte à organiser actuellement.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

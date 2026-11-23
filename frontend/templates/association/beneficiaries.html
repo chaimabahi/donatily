@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion des Bénéficiaires — Association — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-people text-primary me-2"></i>Bénéficiaires & Familles Aidées</h3>
+                <p class="text-muted small mb-0">Recensez les bénéficiaires pris en charge par votre structure et leurs besoins spécifiques.</p>
+            </div>
+            <a href="{% url 'association-beneficiary-create' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-person-plus me-1"></i> Ajouter un bénéficiaire
+            </a>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="card border-0 shadow-sm p-3 mb-4 rounded-3 bg-white">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" name="q" class="form-control" placeholder="Rechercher par nom, téléphone, besoins..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="priority" class="form-select">
+                        <option value="">Toutes priorités</option>
+                        <option value="high" {% if selected_priority == 'high' %}selected{% endif %}>Priorité Haute</option>
+                        <option value="medium" {% if selected_priority == 'medium' %}selected{% endif %}>Priorité Moyenne</option>
+                        <option value="low" {% if selected_priority == 'low' %}selected{% endif %}>Priorité Faible</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="active" class="form-select">
+                        <option value="">Tous statuts</option>
+                        <option value="true" {% if selected_active == 'true' %}selected{% endif %}>Actif</option>
+                        <option value="false" {% if selected_active == 'false' %}selected{% endif %}>Inactif</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                    <a href="{% url 'association-beneficiaries' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nom complet</th>
+                            <th>Contact</th>
+                            <th>Ville / Adresse</th>
+                            <th>Taille foyer</th>
+                            <th>Besoins essentiels</th>
+                            <th>Priorité</th>
+                            <th>Distributions reçues</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ben in beneficiaries %}
+                            <tr>
+                                <td class="fw-bold">{{ ben.full_name }}</td>
+                                <td>{{ ben.phone|default:"—" }}</td>
+                                <td>{{ ben.address }}, {{ ben.city }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ ben.household_size }} pers.</span></td>
+                                <td class="small text-muted" style="max-width: 200px;">{{ ben.needs }}</td>
+                                <td>
+                                    {% if ben.priority == 'high' %}
+                                        <span class="badge bg-danger-subtle text-danger">Haute</span>
+                                    {% elif ben.priority == 'medium' %}
+                                        <span class="badge bg-warning-subtle text-warning text-dark">Moyenne</span>
+                                    {% else %}
+                                        <span class="badge bg-info-subtle text-info">Faible</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge bg-light text-success fw-bold border">{{ ben.distributions_count }}</span></td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="{% url 'association-beneficiary-edit' ben.id %}" class="btn btn-light btn-sm text-primary p-1" title="Modifier">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form method="post" action="{% url 'association-beneficiary-delete' ben.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-light btn-sm text-danger p-1" data-confirm="Supprimer ce bénéficiaire ?" title="Supprimer">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    Aucun bénéficiaire enregistré. Cliquez sur « Ajouter un bénéficiaire » pour commencer.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

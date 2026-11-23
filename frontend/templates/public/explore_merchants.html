@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Commerçants Partenaires — Donatily{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1"><i class="bi bi-shop text-success me-2"></i>Commerces & Entreprises Partenaires</h2>
+        <p class="text-muted small">Découvrez les commerces engagés dans la réduction du gaspillage et le soutien solidaire en Tunisie.</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm p-3 mb-4 rounded-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control" placeholder="Rechercher par nom de commerce..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="city" class="form-control" placeholder="Gouvernorat / Ville (ex: Tunis, La Marsa, Sousse)" value="{{ selected_city }}">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Rechercher</button>
+                <a href="{% url 'portal-explore-merchants' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Merchants Grid -->
+    <div class="row g-4">
+        {% for merchant in merchants %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 bg-white">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-success border" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                            <i class="bi bi-shop-window"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">{{ merchant.business_name }}</h5>
+                            <span class="badge bg-success-subtle text-success small mt-1">Partenaire vérifié</span>
+                        </div>
+                    </div>
+
+                    <p class="small text-muted mb-3 flex-grow-1">
+                        {{ merchant.description|default:"Commerce partenaire engagé avec Donatily." }}
+                    </p>
+
+                    <div class="small text-secondary mb-3 p-3 bg-light rounded-3 d-flex flex-column gap-2">
+                        <div><i class="bi bi-geo-alt-fill text-danger me-2"></i>{{ merchant.address }}, {{ merchant.city }}</div>
+                        {% if merchant.opening_hours %}
+                            <div><i class="bi bi-clock-fill text-primary me-2"></i>{{ merchant.opening_hours }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <span class="small fw-semibold text-muted">
+                            <i class="bi bi-box-seam me-1"></i>{{ merchant.published_products|default:"0" }} offres publiées
+                        </span>
+                        <a href="{% url 'portal-explore-products' %}?city={{ merchant.city }}" class="btn btn-sm btn-outline-primary">
+                            Voir les dons <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Aucun commerçant partenaire trouvé pour cette recherche.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

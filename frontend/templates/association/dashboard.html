@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord Association — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <!-- Welcome Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1">Espace Association Solidarité</h3>
+                <p class="text-muted small mb-0">Pilotez vos approvisionnements solidaires, bénéficiaires et distributions.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'association-products' %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-search me-1"></i> Réserver des dons
+                </a>
+                <a href="{% url 'association-distribution-create' %}" class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-gift me-1"></i> Enregistrer distribution
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Solde Crédits</div>
+                            <h3 class="fw-bold text-success mb-0">{{ stats.credit_balance|default:"0.00" }}</h3>
+                        </div>
+                        <div class="stat-icon green"><i class="bi bi-coin"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2"><i class="bi bi-info-circle me-1"></i>Utilisable pour invendus & promos</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Bénéficiaires Actifs</div>
+                            <h3 class="fw-bold text-primary mb-0">{{ stats.active_beneficiaries|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">Total recensés : {{ stats.beneficiaries|default:"0" }}</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Réservations en cours</div>
+                            <h3 class="fw-bold text-warning mb-0">{{ stats.pending_reservations|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">En attente de validation commerçant</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card card-stat p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">Distributions ce mois</div>
+                            <h3 class="fw-bold text-danger mb-0">{{ stats.distributions_this_month|default:"0" }}</h3>
+                        </div>
+                        <div class="stat-icon rose"><i class="bi bi-box2-heart"></i></div>
+                    </div>
+                    <div class="small text-muted mt-2">Redistribuées aux familles</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="row g-4 mb-4">
+            <!-- Active Subscription Info -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-award text-success me-2"></i>Abonnement Solidaire Actif</span>
+                        <a href="{% url 'association-plans' %}" class="small text-decoration-none">Changer de formule</a>
+                    </h5>
+                    {% if stats.subscription %}
+                        <div class="p-3 bg-light rounded-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold fs-5 text-dark">{{ stats.subscription.plan }}</span>
+                                <span class="badge-status badge-active">Actif</span>
+                            </div>
+                            <div class="small text-muted mb-1"><i class="bi bi-shop me-1"></i>Commerçant partenaire : <strong>{{ stats.subscription.merchant }}</strong></div>
+                            <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>Date d'échéance : <strong>{{ stats.subscription.end_date }}</strong></div>
+                            <div class="small text-success fw-semibold"><i class="bi bi-stars me-1"></i>Allocation : {{ stats.subscription.credits }} crédits / mois</div>
+                        </div>
+                    {% else %}
+                        <div class="p-4 bg-light rounded-3 text-center mb-3">
+                            <i class="bi bi-award fs-1 text-muted mb-2 d-block"></i>
+                            <h6 class="fw-bold">Aucun abonnement en cours</h6>
+                            <p class="small text-muted">Souscrivez à un plan chez un commerçant pour obtenir des crédits mensuels réguliers.</p>
+                            <a href="{% url 'association-plans' %}" class="btn btn-outline-primary btn-sm">Découvrir les formules</a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Distribution Chart Canvas -->
+                    <h6 class="fw-bold text-muted small text-uppercase mb-2">Activité des distributions (6 derniers mois)</h6>
+                    <div style="height: 180px;">
+                        <canvas id="assocDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Collections -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-truck text-primary me-2"></i>Prochaines collectes prévues</span>
+                        <a href="{% url 'association-collections' %}" class="small text-decoration-none">Voir tout</a>
+                    </h5>
+                    <div class="list-group list-group-flush">
+                        {% for col in upcoming_collections %}
+                            <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">{{ col.merchant_name }}</div>
+                                    <div class="text-muted small"><i class="bi bi-calendar me-1"></i>{{ col.scheduled_for }} — {{ col.merchant_address }}</div>
+                                </div>
+                                <span class="badge-status badge-pending">Planifiée</span>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted small py-3 mb-0">Aucune collecte planifiée prochainement.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reservations Table -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-clock-history text-secondary me-2"></i>Dernières demandes de réservation</span>
+                <a href="{% url 'association-reservations' %}" class="btn btn-sm btn-outline-secondary">Toutes les réservations</a>
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>Réf</th>
+                            <th>Commerçant</th>
+                            <th>Date collecte</th>
+                            <th>Crédits</th>
+                            <th>Statut</th>
+                            <th>Date demande</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in recent_reservations %}
+                            <tr>
+                                <td class="fw-bold">#{{ res.id }}</td>
+                                <td>{{ res.merchant_name }}</td>
+                                <td>{{ res.pickup_date }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ res.credits_spent }} pts</span></td>
+                                <td>
+                                    {% if res.status == 'pending' %}
+                                        <span class="badge-status badge-pending">En attente</span>
+                                    {% elif res.status == 'accepted' %}
+                                        <span class="badge-status badge-approved">Acceptée</span>
+                                    {% elif res.status == 'collected' %}
+                                        <span class="badge-status badge-completed">Collectée</span>
+                                    {% elif res.status == 'rejected' %}
+                                        <span class="badge-status badge-rejected">Refusée</span>
+                                    {% else %}
+                                        <span class="badge-status badge-cancelled">{{ res.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ res.created_at|slice:":10" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">Aucune réservation récente.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById("assocDistributionChart");
+    if (ctx) {
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ["Juin", "Juil", "Août", "Sept", "Oct", "Nov"],
+                datasets: [{
+                    label: "Distributions mensuelles",
+                    data: [12, 19, 15, 25, 22, 30],
+                    backgroundColor: "#0d8a5b",
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: "#f1f5f9" } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil Association — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1"><i class="bi bi-building text-success me-2"></i>Profil Association</h3>
+            <p class="text-muted small">Informations officielles, siège et contact de votre structure.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white" style="max-width: 800px;">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Nom de l'association *</label>
+                        <input type="text" name="name" class="form-control" value="{{ association.name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Numéro d'enregistrement légal *</label>
+                        <input type="text" name="registration_number" class="form-control" value="{{ association.registration_number }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Ville / Gouvernorat *</label>
+                        <input type="text" name="city" class="form-control" value="{{ association.city }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Code postal</label>
+                        <input type="text" name="postal_code" class="form-control" value="{{ association.postal_code }}">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Adresse complète du siège *</label>
+                        <input type="text" name="address" class="form-control" value="{{ association.address }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Site web ou page officielle</label>
+                        <input type="url" name="website" class="form-control" value="{{ association.website }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Logo de l'association</label>
+                        <input type="file" name="logo" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Description et missions</label>
+                        <textarea name="description" class="form-control" rows="4">{{ association.description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        Enregistrer le profil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

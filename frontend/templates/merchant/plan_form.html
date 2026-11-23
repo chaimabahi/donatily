@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if mode == 'create' %}Nouvelle Formule{% else %}Modifier Formule{% endif %} — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <a href="{% url 'merchant-plans' %}" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="bi bi-arrow-left me-1"></i> Retour aux formules
+            </a>
+            <h3 class="fw-bold mb-1">
+                {% if mode == 'create' %}<i class="bi bi-plus-circle text-success me-2"></i>Créer une Formule Solidaire{% else %}<i class="bi bi-pencil-square text-primary me-2"></i>Modifier Formule{% endif %}
+            </h3>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white" style="max-width: 700px;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Nom de la formule *</label>
+                        <input type="text" name="name" class="form-control" placeholder="ex: Panier Boulangerie Quotidien" value="{{ plan.name }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Prix de soutien mensuel (TND) *</label>
+                        <input type="number" step="0.01" name="price" class="form-control" value="{{ plan.price|default:'50.00' }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Nombre de crédits alloués *</label>
+                        <input type="number" step="0.01" name="credits" class="form-control" value="{{ plan.credits|default:'60.00' }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Durée de validité (jours) *</label>
+                        <input type="number" name="duration_days" class="form-control" value="{{ plan.duration_days|default:30 }}" required>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="isActivePlan" {% if plan.is_active or not plan %}checked{% endif %}>
+                            <label class="form-check-label small fw-semibold" for="isActivePlan">
+                                Formule active (visible aux associations)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Description détaillée des engagements & lots inclus *</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Quantité estimée de denrées par semaine, conditions..." required>{{ plan.description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        {% if mode == 'create' %}Créer la formule{% else %}Enregistrer les modifications{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

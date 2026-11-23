@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} — Réserver — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <a href="{% url 'association-products' %}" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left me-1"></i> Retour au catalogue
+            </a>
+            <h3 class="fw-bold mb-1">{{ product.name }}</h3>
+            <span class="badge bg-light text-dark border">{{ product.category_name }}</span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <div class="rounded-3 bg-light overflow-hidden mb-4 d-flex align-items-center justify-content-center" style="height: 300px;">
+                        {% if product.primary_image %}
+                            <img src="{{ product.primary_image }}" alt="{{ product.name }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <i class="bi bi-basket2 fs-1 text-muted"></i>
+                        {% endif %}
+                    </div>
+
+                    <h5 class="fw-bold mb-2">Description</h5>
+                    <p class="text-secondary mb-4">{{ product.description }}</p>
+
+                    <div class="row g-3 p-3 bg-light rounded-3 mb-3">
+                        <div class="col-sm-4">
+                            <span class="text-muted small d-block">Type d'offre :</span>
+                            <span class="fw-bold text-dark">{{ product.kind|title }}</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="text-muted small d-block">Stock disponible :</span>
+                            <span class="fw-bold text-success">{{ product.stock }} {{ product.unit }}</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="text-muted small d-block">Coût par unité :</span>
+                            <span class="fw-bold text-primary">{{ product.credit_cost }} crédits</span>
+                        </div>
+                    </div>
+
+                    <!-- Merchant Info -->
+                    <h6 class="fw-bold mb-2">Commerçant partenaire</h6>
+                    <div class="p-3 border rounded-3 d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-success-subtle text-success p-3">
+                            <i class="bi bi-shop fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ product.merchant_name }}</div>
+                            <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>{{ product.merchant_city }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation Form Card -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 90px;">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-calendar2-plus text-success me-2"></i>Formulaire de Réservation</h5>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Quantité à réserver (en {{ product.unit }})</label>
+                            <input type="number" name="quantity" class="form-control" min="1" max="{{ product.stock }}" value="1" required id="qtyInput">
+                            <div class="form-text small text-muted">Maximum disponible : {{ product.stock }} {{ product.unit }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Date de collecte souhaitée au magasin</label>
+                            <input type="date" name="pickup_date" class="form-control" required id="pickupDate">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold">Instructions / Notes pour le commerçant</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Heure approximative de passage, nom du bénévole collecteur..."></textarea>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 mb-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Total crédits requis :</span>
+                                <span class="fw-bold text-success" id="totalCreditsDisplay">{{ product.credit_cost }} pts</span>
+                            </div>
+                            <div class="small text-muted" style="font-size: 0.8rem;">
+                                Les crédits sont débités à la réservation et intégralement remboursés si le commerçant refuse la demande.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+                            <i class="bi bi-check2-circle me-1"></i> Confirmer la réservation
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById("pickupDate");
+    if (dateInput) {
+        dateInput.min = today;
+        dateInput.value = today;
+    }
+
+    // Dynamic credit calculation
+    const qtyInput = document.getElementById("qtyInput");
+    const totalDisplay = document.getElementById("totalCreditsDisplay");
+    const unitCost = parseFloat("{{ product.credit_cost|default:'0' }}");
+
+    if (qtyInput && totalDisplay) {
+        qtyInput.addEventListener("input", function() {
+            const qty = parseInt(this.value) || 0;
+            const total = (qty * unitCost).toFixed(2);
+            totalDisplay.textContent = total + " pts";
+        });
+    }
+});
+</script>
+{% endblock %}

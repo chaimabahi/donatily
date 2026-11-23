@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Catalogue des Dons — Association — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-search-heart text-success me-2"></i>Catalogue des Dons & Offres</h3>
+                <p class="text-muted small mb-0">Réservez des dons gratuits ou utilisez vos crédits pour des offres solidaires.</p>
+            </div>
+            <a href="{% url 'association-reservations' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-cart-check me-1"></i> Voir mes réservations
+            </a>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="card border-0 shadow-sm p-3 mb-4 rounded-3 bg-white">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <input type="text" name="q" class="form-control" placeholder="Nom, description..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">Toutes les catégories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="kind" class="form-select">
+                        <option value="">Tous les types</option>
+                        <option value="donation" {% if selected_kind == 'donation' %}selected{% endif %}>Don gratuit</option>
+                        <option value="unsold" {% if selected_kind == 'unsold' %}selected{% endif %}>Invendu</option>
+                        <option value="discount" {% if selected_kind == 'discount' %}selected{% endif %}>Promotion</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="city" class="form-control" placeholder="Ville (ex: Tunis)" value="{{ selected_city }}">
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                    <a href="{% url 'association-products' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="row g-4">
+            {% for product in products %}
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card-product">
+                        <div class="product-img">
+                            {% if product.primary_image %}
+                                <img src="{{ product.primary_image }}" alt="{{ product.name }}" class="w-100 h-100 object-fit-cover">
+                            {% else %}
+                                <i class="bi bi-basket2 fs-1"></i>
+                            {% endif %}
+                        </div>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-light text-dark border">{{ product.category_name }}</span>
+                                {% if product.kind == 'donation' %}
+                                    <span class="badge-status badge-donation">Don gratuit</span>
+                                {% elif product.kind == 'unsold' %}
+                                    <span class="badge-status badge-unsold">Invendu</span>
+                                {% else %}
+                                    <span class="badge-status badge-discount">Solidaire</span>
+                                {% endif %}
+                            </div>
+
+                            <h6 class="fw-bold mb-1">{{ product.name }}</h6>
+                            <p class="small text-muted mb-3 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ product.description }}
+                            </p>
+
+                            <div class="mb-3 p-2 bg-light rounded-2 small">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Stock :</span>
+                                    <span class="fw-bold text-dark">{{ product.stock }} {{ product.unit }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="text-muted">Crédit requis :</span>
+                                    <span class="fw-bold text-success">{{ product.credit_cost }} pts</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <div>
+                                    <div class="small fw-semibold">{{ product.merchant_name }}</div>
+                                    <div class="small text-muted">{{ product.merchant_city }}</div>
+                                </div>
+                                <a href="{% url 'association-product-detail' product.id %}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check2 me-1"></i> Réserver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Aucun produit ne correspond à ces critères actuellement.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Suivi des Collectes — Association — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-truck text-primary me-2"></i>Suivi des Collectes</h3>
+                <p class="text-muted small mb-0">Rendez-vous prévus pour récupérer les denrées et dons chez les commerçants partenaires.</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>Collecte N°</th>
+                            <th>Réservation</th>
+                            <th>Commerçant & Adresse</th>
+                            <th>Date prévue</th>
+                            <th>Statut</th>
+                            <th>Notes d'organisation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col in collections %}
+                            <tr>
+                                <td class="fw-bold">#{{ col.id }}</td>
+                                <td><span class="badge bg-light text-dark border">Réf #{{ col.reservation_id }}</span></td>
+                                <td>
+                                    <div class="fw-semibold">{{ col.merchant_name }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt me-1 text-danger"></i>{{ col.merchant_address }}, {{ col.merchant_city }}</div>
+                                </td>
+                                <td><i class="bi bi-calendar-check me-1 text-primary"></i>{{ col.scheduled_for }}</td>
+                                <td>
+                                    {% if col.status == 'scheduled' %}
+                                        <span class="badge-status badge-pending">Planifiée</span>
+                                    {% elif col.status == 'completed' %}
+                                        <span class="badge-status badge-completed">Effectuée</span>
+                                    {% elif col.status == 'missed' %}
+                                        <span class="badge-status badge-rejected">Manquée</span>
+                                    {% else %}
+                                        <span class="badge-status badge-cancelled">{{ col.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ col.notes|default:"Aucune consigne spécifique." }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="bi bi-calendar-x fs-1 d-block mb-2 text-muted"></i>
+                                    Aucune collecte enregistrée pour le moment.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

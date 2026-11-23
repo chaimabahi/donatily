@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Distributions & Impact Social — Administration — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1"><i class="bi bi-heart-pulse text-danger me-2"></i>Distributions & Impact Social</h3>
+            <p class="text-muted small mb-0">Suivi des denrées redistribuées aux familles vulnérables par les associations partenaires.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Date remise</th>
+                            <th>Association</th>
+                            <th>Bénéficiaire</th>
+                            <th>Ville</th>
+                            <th>Intitulé du don</th>
+                            <th>Quantité</th>
+                            <th>Enregistré par</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dist in distributions %}
+                            <tr>
+                                <td class="fw-bold">#{{ dist.id }}</td>
+                                <td>{{ dist.distributed_on }}</td>
+                                <td class="fw-semibold">{{ dist.association_name }}</td>
+                                <td>{{ dist.beneficiary_name }}</td>
+                                <td>{{ dist.beneficiary_city }}</td>
+                                <td>{{ dist.title }}</td>
+                                <td><span class="badge bg-success-subtle text-success fw-bold">{{ dist.quantity }} {{ dist.unit }}</span></td>
+                                <td class="small text-muted">{{ dist.recorded_by_name|default:"Association" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    Aucune distribution enregistrée pour le moment.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

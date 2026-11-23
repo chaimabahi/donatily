@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes Notifications — Donatily{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-bell text-primary me-2"></i>Notifications</h3>
+            <p class="text-muted small mb-0">Alertes sur vos réservations, collectes et abonnements.</p>
+        </div>
+        {% if notifications %}
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-check2-all me-1"></i> Tout marquer comme lu
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <div class="list-group list-group-flush">
+            {% for notif in notifications %}
+                <div class="list-group-item p-3 d-flex gap-3 align-items-start {% if not notif.is_read %}bg-light{% endif %}">
+                    <div class="stat-icon {% if not notif.is_read %}green{% else %}blue{% endif %} flex-shrink-0" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold mb-0 {% if not notif.is_read %}text-dark{% else %}text-muted{% endif %}">{{ notif.title }}</h6>
+                            <span class="small text-muted">{{ notif.created_at|slice:":10" }}</span>
+                        </div>
+                        <p class="small text-secondary mb-1">{{ notif.body }}</p>
+                        {% if notif.link %}
+                            <a href="{{ notif.link }}" class="small fw-semibold text-primary">Voir le détail <i class="bi bi-arrow-right"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-5 text-center text-muted">
+                    <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+                    <p class="mb-0">Vous n'avez aucune notification pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

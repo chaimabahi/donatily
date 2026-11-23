@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Supervision Réservations & Collectes — Administration — Donatily{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <div class="dashboard-body">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1"><i class="bi bi-cart4 text-primary me-2"></i>Supervision des Réservations & Collectes</h3>
+            <p class="text-muted small mb-0">Contrôle en direct des échanges entre associations et commerçants partenaires.</p>
+        </div>
+
+        <!-- Reservations Overview -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+            <div class="p-3 bg-light border-bottom fw-bold text-dark d-flex align-items-center gap-2">
+                <i class="bi bi-basket-fill text-success"></i> Toutes les réservations enregistrées
+            </div>
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Association</th>
+                            <th>Commerçant</th>
+                            <th>Date collecte</th>
+                            <th>Crédits</th>
+                            <th>Statut</th>
+                            <th>Créée le</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in reservations %}
+                            <tr>
+                                <td class="fw-bold">#{{ res.id }}</td>
+                                <td>{{ res.association_name }}</td>
+                                <td>{{ res.merchant_name }} ({{ res.merchant_city }})</td>
+                                <td>{{ res.pickup_date }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ res.credits_spent }} pts</span></td>
+                                <td>
+                                    {% if res.status == 'pending' %}
+                                        <span class="badge-status badge-pending">En attente</span>
+                                    {% elif res.status == 'accepted' %}
+                                        <span class="badge-status badge-approved">Acceptée</span>
+                                    {% elif res.status == 'collected' %}
+                                        <span class="badge-status badge-completed">Collectée</span>
+                                    {% elif res.status == 'rejected' %}
+                                        <span class="badge-status badge-rejected">Refusée</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ res.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ res.created_at|slice:":10" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Aucune réservation sur la plateforme.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Collections Overview -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="p-3 bg-light border-bottom fw-bold text-dark d-flex align-items-center gap-2">
+                <i class="bi bi-truck text-primary"></i> Calendrier global des collectes
+            </div>
+            <div class="table-responsive">
+                <table class="table table-donatily mb-0">
+                    <thead>
+                        <tr>
+                            <th>N° Collecte</th>
+                            <th>Réservation</th>
+                            <th>Commerçant</th>
+                            <th>Association</th>
+                            <th>Date prévue</th>
+                            <th>Statut</th>
+                            <th>Date effectuée</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col in collections %}
+                            <tr>
+                                <td class="fw-bold">#{{ col.id }}</td>
+                                <td>#{{ col.reservation_id }}</td>
+                                <td>{{ col.merchant_name }}</td>
+                                <td>{{ col.association_name }}</td>
+                                <td>{{ col.scheduled_for }}</td>
+                                <td>
+                                    {% if col.status == 'scheduled' %}
+                                        <span class="badge-status badge-pending">Planifiée</span>
+                                    {% elif col.status == 'completed' %}
+                                        <span class="badge-status badge-completed">Effectuée</span>
+                                    {% elif col.status == 'missed' %}
+                                        <span class="badge-status badge-rejected">Manquée</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ col.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ col.completed_at|default:"—" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Aucune collecte planifiée.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
